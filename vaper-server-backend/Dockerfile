@@ -6,7 +6,7 @@ WORKDIR /vaper-server-backend
 
 # install modules
 RUN pwd
-RUN npm install -g pm2 --registry=https://registry.npm.taobao.org
-RUN npm install --registry=https://registry.npm.taobao.org
+RUN npm install -g pm2 
+RUN npm install 
 
 ENTRYPOINT pm2-runtime start bin/run
