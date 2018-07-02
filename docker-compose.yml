@@ -2,7 +2,7 @@ version: "3"
 services:
   vaper-server:
     container_name: vaper-server
-    image: vaper
+    image: sysuhxn/vaper
     links:
       - neo4j
     ports:
