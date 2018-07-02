@@ -1,0 +1,212 @@
+version: '2'
+services:
+
+  vaper-server:
+    container_name: vaper-server
+    image: vaper
+    links:
+      - neo4j
+    ports:
+      - 666:3000
+    networks:
+      - esnet
+    restart: unless-stopped
+    
+  neo4j:
+    container_name: neo4j
+    image: neo4j:3.3
+    environment:
+      - NEO4J_AUTH=none
+    ports:
+      - 7474:7474
+      - 7687:7687
+    networks:
+      - esnet
+    volumes:
+      - neo4jdata:/data
+    restart: unless-stopped
+
+  elasticsearch01:
+    image: docker.elastic.co/elasticsearch/elasticsearch-oss:6.2.2
+    container_name: elasticsearch01
+    hostname: elasticsearch01
+    environment:
+      - cluster.name=docker-cluster
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - esdata1:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+    links:
+      - vaper-server
+    networks:
+      - esnet
+  elasticsearch02:
+    image: docker.elastic.co/elasticsearch/elasticsearch-oss:6.2.2
+    container_name: elasticsearch02
+    hostname: elasticsearch02
+    environment:
+      - cluster.name=docker-cluster
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - "discovery.zen.ping.unicast.hosts=elasticsearch"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - esdata2:/usr/share/elasticsearch/data
+    networks:
+      - esnet
+    links:
+      - vaper-server
+  elasticsearch03:
+    image: docker.elastic.co/elasticsearch/elasticsearch-oss:6.2.2
+    container_name: elasticsearch03
+    hostname: elasticsearch03
+    environment:
+      - cluster.name=docker-cluster
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - "discovery.zen.ping.unicast.hosts=elasticsearch"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - esdata3:/usr/share/elasticsearch/data
+    networks:
+      - esnet
+    links:
+      - vaper-server
+  elasticsearch04:
+    image: docker.elastic.co/elasticsearch/elasticsearch-oss:6.2.2
+    container_name: elasticsearch04
+    hostname: elasticsearch04
+    environment:
+      - cluster.name=docker-cluster
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - "discovery.zen.ping.unicast.hosts=elasticsearch"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - esdata4:/usr/share/elasticsearch/data
+    networks:
+      - esnet
+    links:
+      - vaper-server
+  elasticsearch05:
+    image: docker.elastic.co/elasticsearch/elasticsearch-oss:6.2.2
+    container_name: elasticsearch05
+    hostname: elasticsearch05
+    environment:
+      - cluster.name=docker-cluster
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - "discovery.zen.ping.unicast.hosts=elasticsearch"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - esdata5:/usr/share/elasticsearch/data
+    networks:
+      - esnet
+    links:
+      - vaper-server
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana-oss:6.2.2
+    container_name: kibana
+    hostname: kibana
+    links:
+      - elasticsearch01
+    environment:
+      ELASTICSEARCH_URL: http://elasticsearch01:9200
+    ports:
+      - 5601:5601
+    networks:
+      - esnet
+    links:
+      - vaper-server
+  
+  logstash:
+    image: docker.elastic.co/logstash/logstash-oss:6.2.2
+    container_name: logstash
+    hostname: logstash
+    volumes:
+      - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+    links:
+      - elasticsearch01
+      - elasticsearch02
+      - elasticsearch03
+      - elasticsearch04
+      - elasticsearch05
+    networks:
+      - esnet
+    links:
+      - vaper-server
+
+  metricbeat01:
+    image: athieriot/metricbeat
+    container_name: metricbeat01
+    hostname: metricbeat01
+    volumes:
+      - ./metricbeat.yml:/metricbeat/metricbeat.yml
+    networks:
+      - esnet
+    links:
+      - logstash
+      - vaper-server
+
+  metricbeat02:
+    image: athieriot/metricbeat
+    container_name: metricbeat02
+    hostname: metricbeat02
+    volumes:
+      - ./metricbeat.yml:/metricbeat/metricbeat.yml
+    networks:
+      - esnet
+    links:
+      - logstash
+      - vaper-server
+
+  metricbeat03:
+    image: athieriot/metricbeat
+    container_name: metricbeat03
+    hostname: metricbeat03
+    volumes:
+      - ./metricbeat.yml:/metricbeat/metricbeat.yml
+    networks:
+      - esnet
+    links:
+      - logstash
+      - vaper-server
+
+volumes:
+  esdata1:
+    driver: local
+  esdata2:
+    driver: local
+  esdata3:
+    driver: local
+  esdata4:
+    driver: local
+  esdata5:
+    driver: local
+  neo4jdata:
+    driver: local
+
+networks:
+  esnet:
+    driver: bridge
+
+        

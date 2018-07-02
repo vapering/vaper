@@ -1,0 +1,30 @@
+version: "3"
+services:
+  vaper-server:
+    container_name: vaper-server
+    image: vaper
+    links:
+      - neo4j
+    ports:
+      - 666:3000
+    networks:
+      - vaper_net
+    restart: unless-stopped
+    
+  neo4j:
+    container_name: neo4j
+    image: neo4j:3.3
+    environment:
+      - NEO4J_AUTH=none
+    ports:
+      - 7474:7474
+      - 7687:7687
+    networks:
+      - vaper_net
+    volumes:
+      - neo4jdata:/data
+    restart: unless-stopped
+
+networks:
+  vaper_net:
+    driver: bridge
