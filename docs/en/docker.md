@@ -11,7 +11,7 @@ docker-compose up -d
 ## run vaper with a elasticsearch service
 
 `git clone https://github.com/vapering/vaper.git`  
-`cd docker-compose-examples/elasticsearch`  
+`cd vaper/docker-compose-examples/elasticsearch`  
 `docker-compose up -d`
 
 run vaper in all containers  
