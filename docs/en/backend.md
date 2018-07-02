@@ -1,8 +1,6 @@
 # Vaper-server-backend
 
-[Vaper doc home](https://vapering.github.io/vaper-docs/)
-> [vaper-server-backend](https://github.com/vapering/vaper-server-backend)
-> was generated from [koa-generator](https://github.com/17koa/koa-generator)
+[documentation](https://vapering.github.io/vaper/#/)  
 
 ## Requirement
 
@@ -14,8 +12,8 @@
 ### Get source from github
 
 ```bash
-git clone https://github.com/vapering/vaper-server-backend.git
-cd vaper-server-backend
+git clone https://github.com/vapering/vaper.git
+cd vaper/vaper-server-backend
 ```
 
 ### Configuration

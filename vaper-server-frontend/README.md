@@ -1,8 +1,6 @@
 # Vaper-server-frontend
 
-[Vaper doc home](https://vapering.github.io/vaper-docs/)
-> [vaper-server-frontend](https://github.com/vapering/vaper-server-frontend)
-> was forked from [vue-element-admin](https://github.com/PanJiaChen/vue-element-admin)
+[documentation](https://vapering.github.io/vaper/#/)  
 
 ## Requirement
 
@@ -11,8 +9,8 @@
 ## Installation
 
 ```bash
-git clone https://github.com/vapering/vaper-server-frontend.git
-cd vaper-server-frontend
+git clone https://github.com/vapering/vaper.git
+cd vaper/vaper-server-frontend
 npm install
 npm run dev
 ```
