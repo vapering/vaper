@@ -6,7 +6,6 @@
 ### [demo](http://vaper.wengpan.top/)
 
 ## Screenshot
-**2D Graph (ip)**
 ![2d demo](imgs/chart-link-2d-ip.jpg "2d demo")  
 
 
@@ -14,7 +13,14 @@
 - [docker-compose](en/docker.md)
 - [Agent](en/agent.md)
 
-### Development
+## Development
 * [Backend](en/backend.md)
 * [Frontend](en/frontend.md)
+
+## Run doc in localhost
+```shell
+git clone https://github.com/vapering/vaper.git
+npm i docsify-cli -g
+docsify serve ./docs -p 3001
+```
 

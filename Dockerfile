@@ -1,8 +1,8 @@
 FROM node:8-alpine
 LABEL Author="hxn <1621337716@qq.com>"
 
-ADD ./ /vaper-server-backend
-WORKDIR /vaper-server-backend
+ADD ./ /vaper
+WORKDIR /vaper/vaper-server-backend
 
 # install modules
 RUN pwd

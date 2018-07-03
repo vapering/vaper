@@ -6,7 +6,7 @@ services:
     links:
       - neo4j
     ports:
-      - 666:3000
+      - 3000:3000
     networks:
       - vaper_net
     restart: unless-stopped

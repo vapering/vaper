@@ -7,7 +7,7 @@ services:
     links:
       - neo4j
     ports:
-      - 666:3000
+      - 3000:3000
     networks:
       - esnet
     restart: unless-stopped
