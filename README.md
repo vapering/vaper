@@ -13,6 +13,7 @@
 
 ```shell
 git clone https://github.com/vapering/vaper.git
+cd vaper
 docker-compose up -d
 ```
 Open the [http://vaper-server:3000](http://vaper-server:3000)  

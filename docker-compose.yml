@@ -25,6 +25,10 @@ services:
       - neo4jdata:/data
     restart: unless-stopped
 
+volumes:
+  neo4jdata:
+    driver: local
+
 networks:
   vaper_net:
     driver: bridge
