@@ -21,15 +21,6 @@ app.use(convert(json()));
 app.use(convert(logger()));
 app.use(convert(require('koa-static')(__dirname + '/public')));
 
-app.use(views(__dirname + '/views', {
-  extension: 'jade'
-}));
-
-// app.use(views(__dirname + '/views-ejs', {
-//   extension: 'ejs'
-// }));
-// test auto deploy
-
 // logger
 app.use(async (ctx, next) => {
   const start = new Date();
@@ -50,6 +41,5 @@ app.on('error', function (err, ctx) {
   console.log(err)
   log.error('server error', err, ctx);
 });
-
 
 module.exports = app;
