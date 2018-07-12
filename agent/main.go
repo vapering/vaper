@@ -1,9 +1,9 @@
 package main
 // This is vaper agent.
 import (
-
     "os"
     "encoding/json"
+    "strconv"
     log "github.com/sirupsen/logrus"
     "github.com/robfig/cron"
     "github.com/satori/go.uuid"
@@ -55,7 +55,8 @@ func (this *Actions) Start(config *Config){
 
     //host meta job
     hostJob := NewHostJob(config)
-    hostInfoFrequency := config.Frequency.HostInfo
+    hostInfoFrequency := strconv.Itoa(config.Frequency.HostInfo)
+
     log.Info("The hostInfoFrequency is :"+ hostInfoFrequency)
     c.AddJob("@every "+ hostInfoFrequency +"s", hostJob)
     host_bt,_ := json.Marshal(getHostMeta(config))
@@ -63,7 +64,8 @@ func (this *Actions) Start(config *Config){
 
     //network flows job
     networkflowsJob := NewNetworkflowsJob(config)
-    networkFlowFrequency :=  config.Frequency.NetworkFlow
+    networkFlowFrequency :=  strconv.Itoa(config.Frequency.NetworkFlow)
+
     log.Info("The networkFlowFrequency is :"+ networkFlowFrequency)
     c.AddJob("@every "+ networkFlowFrequency +"s", networkflowsJob)
     log.Info("The Interfaces list :"+ InterfacesToString(getAllInterfaces()))

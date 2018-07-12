@@ -4,6 +4,8 @@ import (
     "strconv"
     "github.com/google/gopacket"
     "github.com/google/gopacket/pcap"
+    "github.com/google/gopacket/layers"
+
     "time"
     "io"
     logrus "github.com/sirupsen/logrus"
@@ -18,7 +20,7 @@ func getAllInterfaces() []net.Interface {
         logrus.Fatal("Failed to get the interfaces info.")
     }
     for k, interf := range interfaces {
-        logrus.Debug("Interface " +strconv.Itoa(k)+":"+interf.Name)
+        logrus.Debug("Found interface " +strconv.Itoa(k)+":"+interf.Name)
     }
     return interfaces
 }
@@ -30,19 +32,44 @@ func InterfacesToString(interfaces []net.Interface) string{
     return result
 }
 
-func getPkgsByDeviceName(deviceName string, networkflows chan []gopacket.Flow, limit int, timeoutSecond int ){
+type TcpFlow struct{
+    SrcIp string
+    DstIp string
+
+    SrcPort int
+    DstPort int
+
+    PackagesPerSecond float64
+    Count int
+}
+
+func NewTcpFlow(SrcIp string, DstIp string, SrcPort int, DstPort int)* TcpFlow{
+    tcpFlow := TcpFlow{}
+    
+    tcpFlow.SrcIp = SrcIp
+    tcpFlow.DstIp = DstIp
+
+    tcpFlow.SrcPort = SrcPort
+    tcpFlow.DstPort = DstPort
+    tcpFlow.PackagesPerSecond = 0.1
+    tcpFlow.Count = 0
+
+    return &tcpFlow
+}
+
+func getPkgsByDeviceName(deviceName string, networkflows chan []TcpFlow, timeoutSecond int ){
     var (
         snapshot_len int32  = 1024
         promiscuous  bool   = false
         err          error
         timeout      time.Duration = time.Duration(timeoutSecond) * time.Second
         handle       *pcap.Handle
-        nwfs [] gopacket.Flow
+        nwfs []TcpFlow
     )
     handle, err = pcap.OpenLive(deviceName, snapshot_len, promiscuous, timeout)
     if err == nil {
         defer handle.Close()
-        count := 0
+
         packetSource := gopacket.NewPacketSource(handle, handle.LinkType())
         for {
             packet, err := packetSource.NextPacket()
@@ -52,34 +79,54 @@ func getPkgsByDeviceName(deviceName string, networkflows chan []gopacket.Flow, l
                 logrus.Debug("Interface "+ deviceName + ": No more packages." + err.Error())
                 break
             }
+
+            SrcPort := 0
+            DstPort := 0
+
+            tcpLayer := packet.Layer(layers.LayerTypeTCP)
+            if tcpLayer != nil{
+                tcp, _ := tcpLayer.(*layers.TCP)
+                SrcPort = int(tcp.SrcPort)
+                DstPort = int(tcp.DstPort)
+                if SrcPort < DstPort{
+                    DstPort = -1
+                }else{
+                    SrcPort = -1
+                }
+            }
+            
             applicationLayer := packet.NetworkLayer()
             if applicationLayer != nil{
                 flow := applicationLayer.NetworkFlow()
-                nwfs = append(nwfs, flow)
-            }
-            count += 1
-            if count > limit{
-                logrus.Debug("Interface "+ deviceName + ":catch "+ strconv.Itoa(count) +" package.")
-                break
+                tpcFlow := NewTcpFlow(flow.Src().String(), flow.Dst().String(), SrcPort, DstPort)
+                nwfs = append(nwfs, *tpcFlow)
             }
         }
     }
+
     networkflows <- nwfs
 }
 
-func tcpcatch (limit int,timeoutSecond int) [] gopacket.Flow{
+func tcpcatch (frequency int, rate float64) ( []TcpFlow, int64){
     var(
-        networkflowsCh chan []gopacket.Flow = make(chan []gopacket.Flow)
+        networkflowsCh chan []TcpFlow = make(chan []TcpFlow)
+        timeoutSecond int = int(float64(frequency) * rate)
     )
     interfaces := getAllInterfaces()
+    startTimeUnixNano := time.Now().UnixNano()
+
     for _,v := range interfaces {
-        go getPkgsByDeviceName(v.Name, networkflowsCh, limit, timeoutSecond)
+        go getPkgsByDeviceName(v.Name, networkflowsCh, timeoutSecond)
     }
 
-    var networkflows [] gopacket.Flow
+    var networkflows [] TcpFlow
     for i := 0; i < len(interfaces); i++ {
         flows := <- networkflowsCh
         networkflows = append(networkflows, flows...)
     }
-    return networkflows
+
+    endTimeUnixNano := time.Now().UnixNano()
+    durationUnixNano := endTimeUnixNano - startTimeUnixNano
+
+    return networkflows, durationUnixNano
 }

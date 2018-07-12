@@ -28,12 +28,14 @@ type Config struct {
     }
 
     Frequency struct{
-        HostInfo string `default:"60"`
-        NetworkFlow string `default:"10"`
+        HostInfo int `default: 60`
+        NetworkFlow int `default: 10`
     }
-    
-    PackagesLimit string `default:"10"`
-    
+
+    Sampling struct{
+        Rate float64 `default: 0.1`
+    }
+        
     Server string `default:"http://127.0.0.1:3000"`
 
     Api struct{        
@@ -60,6 +62,13 @@ func NewConfig () *Config{
 
     configor.Load(&config, *fconfig)
     
+    //check
+    if config.Sampling.Rate > 1.0{
+        config.Sampling.Rate = 1.0
+    }else if config.Sampling.Rate < 0.1 {
+        config.Sampling.Rate = 0.1
+    }
+
     return &config
 }
 
