@@ -6,6 +6,7 @@ buildCMD="go build -o vaper_agent -ldflags '-linkmode \"external\" -extldflags \
 echo -e "\n[BUILD]"
 echo -e "comand:$buildCMD"
 
+# Build statically
 go build -o vaper_agent -ldflags '-linkmode "external" -extldflags "-static"'
 
 if [ $? -ne 0 ] ; then
@@ -15,7 +16,7 @@ else
   echo ">>> Build success."
 fi
 
-RUNCMD='sudo ./vaper_agent -a start'
+RUNCMD='sudo ./vaper_agent -a start -f config.yml'
 echo -e "\n[RUN]"
 echo -e "comand:$RUNCMD"
 $RUNCMD

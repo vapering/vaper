@@ -91,7 +91,7 @@
 import { fetchListByIdNDeepth } from '@/api/host'
 import { fetchListByUids } from '@/api/host'
 import { netflowSearch } from '@/api/link'
-import $ from 'jquery'
+// import $ from 'jquery'
 
 const kmeans = require('node-kmeans')
 
@@ -174,12 +174,14 @@ export default {
     },
     initGraphByD3: function(nodes, links) {
       var dom = document.getElementById('nodes-graph')
-      var width = $('#nodes-graph').width()
+      // var width = $('#nodes-graph').width()
       var self = this
       dom.innerHTML = '<svg id="link-svg" />'
+      // eslint-disable-next-line
       var svg = d3.select('#nodes-graph')
       var count = 0
 
+      // eslint-disable-next-line
       var graph = createV4SelectableForceDirectedGraph(svg, { 'nodes': nodes, 'links': links }, function(graph) {
         if (graph.count >= (count + 300)) {
           count = graph.count
@@ -270,7 +272,7 @@ export default {
       // Create the data 2D-array (vectors) describing the data
       this.cluster_groups = []
       var nodes = this.graph.nodes
-      const vectors = new Array()
+      const vectors = []
       for (let i = 0; i < nodes.length; i++) {
         vectors[i] = [nodes[i]['x'], nodes[i]['y']]
       }

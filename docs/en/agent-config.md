@@ -33,26 +33,26 @@ log:
 frequency:
     # HostInfoFrequency
     # default: "60"
-    # Frequency of host info send in seconds.
+    # Send host info every n seconds.
     # 120 - 3600
-    hostInfo: "60"
+    hostinfo: 60
 
-    # NetworkFlowFrequency
+    # networkflow
     # default: "10"
-    # Frequency of network flow info send in seconds.
+    # Send networkflow info every n seconds.
     # 30 - 3600
-    networkflow: "10"
+    networkflow: 10
 
-# PackagesLimit
-# Default:"10"
-# How many packages you want to catch during the "networkFlowFrequency" seconds.
-# Attention: Do not set this param to a big number.More packet been catched, the vaper_agent cost more system.
-# 1-600
-packageslimit: "10"
+sampling:
+    # default 0.2
+    # 100 * n out of 100 packages will be sampled where n is the rate. (0.1: 10%)
+    # 0.1 - 1.0
+    rate: 0.2
 
 # server
 # default:"http://127.0.0.1:3000"
 # the Vaper-server-backend address
 server: "http://127.0.0.1:3000"
+
 
 ```

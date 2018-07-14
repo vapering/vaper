@@ -113,7 +113,7 @@ func NewNetworkflowsJob (config *Config) NetworkflowsJob{
 func (this NetworkflowsJob)Run(){
     nwfMsg := getNetworkFlowMsg(this.config)
     if nwfMsg.NetworkFlows == nil{
-        log.Debug("No flow data was catched.")
+        log.Debug("0 data was catched during this round.")
         return
     }else{
         server_url := this.config.Server
@@ -125,18 +125,27 @@ func (this NetworkflowsJob)Run(){
 }
 
 func postMsg(url string, msg string) bool {
+    client := &http.Client{}
+    // client.Timeout = time.Duration(2) * time.Second 
+
     payload := strings.NewReader(msg)
     req, _ := http.NewRequest("POST", url, payload)
     req.Header.Add("content-type", "application/json")
     log.Debug("Post message to "+ url + ";request.body:"+ msg);
-    res, err := http.DefaultClient.Do(req)
+
+    res, err := client.Do(req)
     if(err != nil){
         log.Error("send msg info fail.detail:" + err.Error())
         return false
     }else{
         defer res.Body.Close()
-        body, _ := ioutil.ReadAll(res.Body)
-        log.Debug("response:" + string(body))
-        return true
+        body, err := ioutil.ReadAll(res.Body)
+        if err != nil{
+            log.Error("send msg info fail.detail:" + err.Error())
+            return false
+        }else{
+            log.Debug("response:" + string(body))
+            return true
+        }
     }
 }

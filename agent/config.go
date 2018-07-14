@@ -21,11 +21,8 @@ type Config struct {
         Autogenerate string `default:"1"`
     }
 
-    Log struct{
-        Level string `default:"info"`
-    
-        Path string `default:"./vaper_agent.log"`
-    }
+    LogLevel string `default:"info"`
+    LogPath string `default:"./vaper_agent.log"`
 
     Frequency struct{
         HostInfo int `default: 60`
@@ -55,7 +52,13 @@ func NewConfig () *Config{
     flag.StringVar(&config.Action,"a", "nothing", "action: init/start")
     
     //ServerUrl
-    flag.StringVar(&config.Server, "ServerUrl", "http://127.0.0.1:3000", "ServerUrl")
+    flag.StringVar(&config.Server, "ServerUrl", "http://127.0.0.1:3000", "ServerUrl")    
+
+    //log level
+    flag.StringVar(&config.LogLevel, "loglevel", "info", "Log level: debug info warn error fatal panic")
+ 
+    //log path
+    flag.StringVar(&config.LogPath, "logpath", "./vaper_agent.log", "Log path")
     
     os.Setenv("CONFIGOR_ENV_PREFIX", "-")
     flag.Parse()
@@ -68,13 +71,21 @@ func NewConfig () *Config{
     }else if config.Sampling.Rate < 0.1 {
         config.Sampling.Rate = 0.1
     }
+    
+    //check config ,fix HostInfo = 0 when configitem is a int.
+    if config.Frequency.HostInfo < 60{
+        config.Frequency.HostInfo = 60
+    }
+    if config.Frequency.NetworkFlow < 10 {
+        config.Frequency.NetworkFlow = 10
+    }
 
     return &config
 }
 
 func (config *Config) InitLogger(){
-    level := strings.ToLower(config.Log.Level)
-    logpath := config.Log.Path
+    level := strings.ToLower(config.LogLevel)
+    logpath := config.LogPath
     file, err := os.OpenFile(logpath, os.O_CREATE|os.O_WRONLY, 0666)
     if err == nil {
         log.SetOutput(file)

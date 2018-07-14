@@ -18,7 +18,7 @@ log:
     # level
     # default: info 
     # Optional: debug info warn error fatal panic
-    level: "debug"
+    level: "info"
 
     # path
     # default: "./vaper_agent.log" 
@@ -28,20 +28,20 @@ frequency:
     # HostInfoFrequency
     # default: "60"
     # Send host info every n seconds.
-    # 120 - 3600
+    # hostinfo > 60
     hostinfo: 60
 
     # networkflow
     # default: "10"
     # Send networkflow info every n seconds.
-    # 30 - 3600
+    # networkflow > 10
     networkflow: 10
 
 sampling:
-    # default 0.1
+    # default 0.2
     # 100 * n out of 100 packages will be sampled where n is the rate. (0.1: 10%)
     # 0.1 - 1.0
-    rate: 0.6
+    rate: 0.2
 
 # server
 # default:"http://127.0.0.1:3000"

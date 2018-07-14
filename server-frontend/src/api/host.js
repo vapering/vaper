@@ -39,3 +39,11 @@ export function updateTags(query) {
     data: query
   })
 }
+
+export function remove(query) {
+  return request({
+    url: '/host/',
+    method: 'delete',
+    data: query
+  })
+}

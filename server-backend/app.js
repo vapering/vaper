@@ -26,20 +26,45 @@ app.use(async (ctx, next) => {
   const start = new Date();
   await next();
   const ms = new Date() - start;
-  console.log(`${ctx.method} ${ctx.url} - ${ms}ms`);
+  console.log(`${ctx.method} ${ctx.url} - ${ms}ms `);
 });
+
+
+// error handle
+app.use(async (ctx, next) => {
+  try {
+    await next();
+  } catch (err) {
+    // will only respond with JSON
+    ctx.status = err.statusCode || err.status || 500;
+    ctx.body = {
+      status: "error",
+      message: err.message
+    };
+  }
+})
+
+//check response format
+app.use(async (ctx, next) => {
+  await next();
+  const statuses = ["success", "error"]
+  if (statuses.indexOf(ctx.body.status) == -1) {
+    const message = "Error in response body,The ctx.body.status: (" + ctx.body.status + ") is not success or error"
+    throw new Error(message)
+  }
+})
+
 
 // router.use('/', index.routes(), index.allowedMethods());
 router.use('/login', user.routes(), user.allowedMethods());
 router.use('/netflow', netflow.routes(), netflow.allowedMethods());
 router.use('/host', host.routes(), host.allowedMethods());
 
-app.use(router.routes(), router.allowedMethods());
 // response
+app.use(router.routes(), router.allowedMethods());
 
-app.on('error', function (err, ctx) {
-  console.log(err)
-  log.error('server error', err, ctx);
+app.on('error', function (error, ctx) {
+  console.error(error.stack)
 });
 
 module.exports = app;

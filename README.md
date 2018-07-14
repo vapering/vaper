@@ -7,7 +7,7 @@
 ### [demo](http://vaper.wengpan.top/)
 
 ## Screenshot
-![2d demo](docs/imgs/chart-link-2d-ip.jpg "2d demo")  
+![2d demo](/docs/imgs/chart-link-2d-ip.jpg "2d demo")  
 ## Quick start
 ## run vaper-server only
 

@@ -26,14 +26,14 @@
       <el-col :span="24">
           <div style="margin-bottom:10px;">
             <el-button-group>
-              <!-- <el-button type="primary" icon="el-icon-edit">Edit Nickname</el-button>
-              <el-button type="primary" icon="el-icon-delete">Delete</el-button> -->
+              <!-- <el-button type="primary" icon="el-icon-edit">Edit Nickname</el-button>-->
+              <el-button :disabled="!(tableSelections.length > 0)" type="primary" icon="el-icon-delete" @click="deleteHosts">{{$t('table.delete')}}</el-button> 
             </el-button-group>
           </div>
-          <el-table :data="tableData" style="width: 100%" :stripe="true" :border="false" @selection-change="selectionChange">
+          <el-table :data="tableData" style="width: 100%" :stripe="true" :border="false" @selection-change="selectionChange" v-loading="tableLoading">
             <el-table-column
               type="selection"
-              width="26">
+              width="30">
             </el-table-column>
             <el-table-column prop="identity" :label="$t('host.chart')" width="60px">
               <template slot-scope="scope">
@@ -119,6 +119,7 @@
 
 <script>
 import { fetchList, updateTags, getHostCount } from '@/api/host'
+import { remove as hostRemove } from '@/api/host'
 
 export default {
   name: 'hostlist',
@@ -141,13 +142,30 @@ export default {
         currentPage: 1,
         size: 10,
         total: 5
-      }
+      },
+      tableLoading: false
     }
   },
   methods: {
     editHost: function(host) {
       this.dialogVisible = true
       this.hostInEdit = host
+    },
+    deleteHosts: function() {
+      var uids = []
+      var self = this
+      for (let index = 0; index < this.tableSelections.length; index++) {
+        const element = this.tableSelections[index]
+        uids.push(element['properties']['uid'])
+      }
+
+      hostRemove({ uids })
+        .then(response => {
+          self.fetchHostList()
+        })
+        .catch(err => {
+          console.log(err)
+        })
     },
     handleEditClose: function() {
       this.dialogVisible = false
@@ -206,6 +224,8 @@ export default {
       this.fetchHostList()
     },
     fetchHostList: function() {
+      this.freshHostCount()
+      this.tableLoading = true
       this.form['skip'] = this.page.size * (this.page.currentPage - 1)
       this.form['limit'] = this.page.size * this.page.currentPage
       fetchList(this.form)
@@ -213,12 +233,26 @@ export default {
           console.log(response)
           var data = response['data']
           this.tableData = data['nodes']
+          this.tableLoading = false
         })
         .catch(err => {
           this.fetchSuccess = false
+          this.tableLoading = false
           console.log(err)
         })
     },
+    freshHostCount: function() {
+      var self = this
+      getHostCount()
+        .then(response => {
+          var data = response['data']
+          self.page.total = parseInt(data['node_count'])
+        })
+        .catch(err => {
+          console.log(err)
+        })
+    },
+
     handleCurrentChange: function(val) {
       this.page.currentPage = val
       this.fetchHostList()
@@ -239,15 +273,6 @@ export default {
   },
   mounted() {},
   created() {
-    var self = this
-    getHostCount()
-      .then(response => {
-        var data = response['data']
-        self.page.total = parseInt(data['node_count'])
-      })
-      .catch(err => {
-        console.log(err)
-      })
     this.fetchHostList()
   }
 }

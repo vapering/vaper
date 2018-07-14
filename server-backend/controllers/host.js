@@ -3,110 +3,100 @@
  */
 'use strict';
 
-// const neo4j = require('neo4j-driver').v1;
-// const driver = neo4j.driver(config.neo4j.uri, neo4j.auth.basic(config.neo4j.user, config.neo4j.password));
 const driver = config.neo4jDriver
+// const session = driver.session();
+
 
 /**
  * 新增或者更新主机节点数据 返回原生neo4j的返回值。
  */
 exports.add_or_update = async (ctx) => {
-    try {
-        var req_body = ctx.request.body
-        var hostname = req_body["Hostname"]
-        var uid = req_body["Uid"]
-        var ips = req_body["Ips"]
+    var req_body = ctx.request.body
+    var hostname = req_body["Hostname"]
+    var uid = req_body["Uid"]
+    var ips = req_body["Ips"]
 
-        //Neo4j action:
-        const session = driver.session();
-        // session.close();
+    //Neo4j action:
+    const session = driver.session();
+    // session.close();
 
-        var result = await searchNode(session, uid)
-        // console.log(result.records.length)
-        var newNode = {
-            hostname: hostname,
-            uid: uid,
-            ips: ips
-        }
-        //if unexist then add ,Or do nothing.
-        if (result.records.length > 0) {
-            //there is a node the same as this.
-            ctx.body = "there is an exist node in server."
-        } else {
-            var addResult = await addNode(session, newNode)
-            // console.log(addResult)
-            ctx.body = "add success."
-        }
-    } catch (e) {
-        console.error(e.stack)
-        ctx.status = 400;
-        ctx.body = e.message
+    var result = await searchNode(session, uid)
+    // console.log(result.records.length)
+    var newNode = {
+        hostname: hostname,
+        uid: uid,
+        ips: ips
+    }
+    var message = "";
+    //if unexist then add ,Or do nothing.
+    if (result.records.length > 0) {
+        //there is a node the same as this.
+        message = "there is an exist node in server."
+    } else {
+        var addResult = await addNode(session, newNode)
+        // console.log(addResult)
+        message = "add success."
+    }
+    ctx.body = {
+        "status": "success",
+        "message": message
     }
 }
 
 /**
- * 搜索节点数据
+ * host search by tag ip hostname ...
  */
 exports.search = async (ctx) => {
-    try {
-        const session = driver.session()
-        var req_body = ctx.request.body
+    const session = driver.session()
+    var req_body = ctx.request.body
 
-        var skip = req_body["skip"] ? req_body["skip"] : 0
-        var limit = req_body["limit"] ? req_body["limit"] : 10
-        var tag = req_body["tag"]
-        var ip = req_body["ip"]
-        var hostname = req_body["hostname"]
-        console.log(req_body)
-        var nodes = []
-        var params = {
-            'ip': ip,
-            'skip': skip,
-            'limit': limit
-        }
-        var where_statement = ' where 1=1 '
-        if (tag) {
-            where_statement += ' AND $tag in node.tags '
-            params['tag'] = tag
-        }
-        if (ip) {
-            where_statement += ' AND $ip in node.ips '
-            params['ip'] = ip
-        }
-        if (hostname) {
-            where_statement += ' AND $hostname= node.hostname '
-            params['hostname'] = hostname
-        }
-        var statement = 'match(node) ' + where_statement + ' return node SKIP $skip LIMIT $limit'
-        console.log(statement)
-        const result = await session.writeTransaction(tx => tx.run(statement, params))
+    var skip = req_body["skip"] ? req_body["skip"] : 0
+    var limit = req_body["limit"] ? req_body["limit"] : 10
+    var tag = req_body["tag"]
+    var ip = req_body["ip"]
+    var hostname = req_body["hostname"]
 
-        var records = result["records"]
-        var nodes = []
-        if (records.length > 0) {
-            for (var i = 0; i < records.length; i++) {
-                var node = records[i].toObject()["node"]
-                var node_new = {
-                    "identity": node.identity.toString(),
-                    "labels": node.labels,
-                    "properties": node.properties
-                }
-                nodes.push(node_new)
+    var nodes = []
+    var params = {
+        'ip': ip,
+        'skip': skip,
+        'limit': limit
+    }
+    var where_statement = ' where 1=1 '
+    if (tag) {
+        where_statement += ' AND $tag in node.tags '
+        params['tag'] = tag
+    }
+    if (ip) {
+        where_statement += ' AND $ip in node.ips '
+        params['ip'] = ip
+    }
+    if (hostname) {
+        where_statement += " AND node.hostname =~'.*" + hostname + ".*'  "
+        params['hostname'] = hostname
+    }
+    var statement = 'match(node) ' + where_statement + ' return node SKIP $skip LIMIT $limit'
+    console.debug(statement)
+    const result = await session.writeTransaction(tx => tx.run(statement, params))
+
+    var records = result["records"]
+    var nodes = []
+    if (records.length > 0) {
+        for (var i = 0; i < records.length; i++) {
+            var node = records[i].toObject()["node"]
+            var node_new = {
+                "identity": node.identity.toString(),
+                "labels": node.labels,
+                "properties": node.properties
             }
+            nodes.push(node_new)
         }
+    }
 
 
-        ctx.status = 200
-        ctx.body = {
-            "nodes": nodes
-        }
-    } catch (error) {
-        console.error(error.stack)
-        ctx.status = 400
-        ctx.body = {
-            "status": "error",
-            "message": error.message
-        }
+    ctx.body = {
+        "status": "success",
+        "nodes": nodes
     }
 }
 
@@ -114,26 +104,16 @@ exports.search = async (ctx) => {
  * 通过中心节点和深度搜索节点数据
  */
 exports.searchNodesByIdNDeepth = async (ctx) => {
-    try {
-        const session = driver.session();
-        var req_body = ctx.request.body
-        console.log(req_body)
-        var identity = req_body["identity"]
-        var deepth = req_body["deepth"]
+    const session = driver.session();
+    var req_body = ctx.request.body
+    console.log(req_body)
+    var identity = req_body["identity"]
+    var deepth = req_body["deepth"]
 
-        var nodes = await fetchNodesByIdNDeepth(session, identity, deepth)
-
-        ctx.status = 200
-        ctx.body = {
-            "nodes": nodes
-        }
-    } catch (error) {
-        console.error(error.stack)
-        ctx.status = 400
-        ctx.body = {
-            "status": "error",
-            "message": error.message
-        }
+    var nodes = await fetchNodesByIdNDeepth(session, identity, deepth)
+    ctx.body = {
+        "status": "success",
+        "nodes": nodes
     }
 }
 
@@ -141,25 +121,16 @@ exports.searchNodesByIdNDeepth = async (ctx) => {
  * 通过uid列表搜索节点数据
  */
 exports.searchByUids = async (ctx) => {
-    try {
-        const session = driver.session();
-        var req_body = ctx.request.body
-        console.log(req_body)
-        var uids = req_body["uids"]
+    const session = driver.session();
+    var req_body = ctx.request.body
+    console.log(req_body)
+    var uids = req_body["uids"]
 
-        var nodes = await searchByUids(session, uids)
+    var nodes = await searchByUids(session, uids)
 
-        ctx.status = 200
-        ctx.body = {
-            "nodes": nodes
-        }
-    } catch (error) {
-        console.error(error.stack)
-        ctx.status = 400
-        ctx.body = {
-            "status": "error",
-            "message": error.message
-        }
+    ctx.body = {
+        "status": "success",
+        "nodes": nodes
     }
 }
 
@@ -167,21 +138,13 @@ exports.searchByUids = async (ctx) => {
  * 共有多少个节点
  */
 exports.count = async (ctx) => {
-    try {
-        const session = driver.session();
-        var count = await nodeCount(session)
+    const session = driver.session();
+    var count = await nodeCount(session)
 
-        ctx.status = 200
-        ctx.body = {
-            "node_count": count
-        }
-    } catch (error) {
-        console.error(error.stack)
-        ctx.status = 400
-        ctx.body = {
-            "status": "error",
-            "message": error.message
-        }
+    ctx.status = 200
+    ctx.body = {
+        "status": "success",
+        "node_count": count
     }
 }
 
@@ -210,6 +173,46 @@ exports.updateTags = async (ctx) => {
     }
 }
 
+/**
+ * delete multi hosts
+ */
+
+exports.delete = async (ctx) => {
+    var req_body = ctx.request.body
+    var uids = req_body["uids"]
+    if (uids == undefined) {
+        throw new Error("Param uids is required.");
+    } else if (uids.length == 0) {
+        throw new Error("Param uids should not be empty.");
+    }
+    console.log(uids[0])
+    const session = driver.session();
+    //Delete node and links
+    session.run('MATCH (anode)-[link]-(bnode)  WHERE anode.uid IN $uids  DELETE anode,link', {
+    // session.run('MATCH (anode)-[link]-(bnode)  WHERE anode.uid IN $uids  RETURN anode,link', {
+        uids: uids
+    }).then(function (result) {
+        console.log(result);
+    }).catch(function (error) {
+        throw error;
+        console.error(error);
+    })
+    //Delete node only 
+    session.run('MATCH (anode)  WHERE anode.uid IN $uids  DELETE anode', {
+        uids: uids
+    }).then(function (result) {
+        console.log(result);
+        session.close();
+    }).catch(function (error) {
+        throw error;
+        console.error(error);
+    })
+
+    ctx.body = {
+        "status": "success",
+        "message": "Delete " + uids.length + " nodes.",
+    }
+}
 
 
 
@@ -230,6 +233,7 @@ async function searchNode(neo4jSession, uid) {
         'match(host{ uid: $uid })return host', {
             "uid": uid
         }))
+    neo4jSession.close()
     return result
 }
 
@@ -241,6 +245,7 @@ async function addNode(neo4jSession, newNode) {
         'CREATE ($param)', {
             "param": newNode
         }));
+    neo4jSession.close()
     return result
 }
 
@@ -252,6 +257,8 @@ async function nodeCount(neo4jSession) {
         'match(node) return count(node)'))
     var records = result["records"]
     var count = records[0].toObject()['count(node)'].toString()
+    neo4jSession.close()
+
     return count
 }
 /**
@@ -275,6 +282,8 @@ async function searchByIp(neo4jSession, ip) {
             nodes.push(node_new)
         }
     }
+    neo4jSession.close()
+
     return nodes
 }
 
@@ -299,6 +308,8 @@ async function searchByUids(neo4jSession, ips) {
             nodes.push(node_new)
         }
     }
+    neo4jSession.close()
+
     return nodes
 }
 /**
@@ -320,6 +331,8 @@ async function allHost(neo4jSession) {
             nodes.push(node_new)
         }
     }
+    neo4jSession.close()
+
     return nodes
 }
 
@@ -349,5 +362,7 @@ async function fetchNodesByIdNDeepth(neo4jSession, identity, deepth) {
             nodes.push(node_new)
         }
     }
+    neo4jSession.close()
+
     return nodes
 }

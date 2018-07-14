@@ -1,11 +1,9 @@
 package main
 
 import (
-    "strconv"
     "github.com/google/gopacket"
     "github.com/google/gopacket/pcap"
     "github.com/google/gopacket/layers"
-
     "time"
     "io"
     logrus "github.com/sirupsen/logrus"
@@ -19,9 +17,11 @@ func getAllInterfaces() []net.Interface {
     if err != nil{
         logrus.Fatal("Failed to get the interfaces info.")
     }
-    for k, interf := range interfaces {
-        logrus.Debug("Found interface " +strconv.Itoa(k)+":"+interf.Name)
+    interfacesStr := ""
+    for _, interf := range interfaces {
+        interfacesStr += interf.Name + ";"
     }
+    logrus.Debug("Found interfaces: " + interfacesStr )
     return interfaces
 }
 func InterfacesToString(interfaces []net.Interface) string{
@@ -76,7 +76,7 @@ func getPkgsByDeviceName(deviceName string, networkflows chan []TcpFlow, timeout
             if err == io.EOF {
                 break
             } else if err != nil {
-                logrus.Debug("Interface "+ deviceName + ": No more packages." + err.Error())
+                logrus.Debug("Interface "+ deviceName + ": catch 0 packages." + err.Error())
                 break
             }
 

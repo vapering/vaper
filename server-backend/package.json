@@ -10,7 +10,7 @@
   "dependencies": {
     "co": "^4.6.0",
     "debug": "^2.2.0",
-    "koa": "^2.0.0",
+    "koa": "^2.5.2",
     "koa-bodyparser": "^2.0.1",
     "koa-convert": "^1.2.0",
     "koa-json": "^1.1.1",
@@ -20,11 +20,11 @@
     "koa-static": "^1.5.2",
     "koa-views": "^5.0.1",
     "lodash": "^4.17.4",
-    "neo4j-driver": "^1.5.1",
+    "neo4j-driver": "^1.6.2",
     "runkoa": "^1.5.2"
   },
   "devDependencies": {
-    "mocha": "^2.4.5",
+    "mocha": "^5.2.0",
     "nodemon": "^1.9.1",
     "should": "^8.3.0",
     "supertest": "^1.2.0"

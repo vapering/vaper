@@ -3,6 +3,7 @@ var router = require('koa-router')();
 router.post('/login', function (ctx, next) {
   ctx.body = 'this a users response!';
   ctx.body = {
+    status: "success",
     roles: ['admin'],
     token: 'admin',
     introduction: '我是超级管理员',
@@ -14,6 +15,7 @@ router.post('/login', function (ctx, next) {
 router.get('/info', function (ctx, next) {
   ctx.body = 'this a users response!';
   ctx.body = {
+    status: "success",
     roles: ['admin'],
     token: 'admin',
     introduction: '我是超级管理员',

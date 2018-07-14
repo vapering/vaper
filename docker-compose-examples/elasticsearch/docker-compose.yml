@@ -27,7 +27,7 @@ services:
     restart: unless-stopped
 
   elasticsearch01:
-    image: docker.elastic.co/elasticsearch/elasticsearch-oss:6.2.2
+    image: elasticsearch:5
     container_name: elasticsearch01
     hostname: elasticsearch01
     environment:
@@ -46,85 +46,9 @@ services:
       - vaper-server
     networks:
       - esnet
-  elasticsearch02:
-    image: docker.elastic.co/elasticsearch/elasticsearch-oss:6.2.2
-    container_name: elasticsearch02
-    hostname: elasticsearch02
-    environment:
-      - cluster.name=docker-cluster
-      - bootstrap.memory_lock=true
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-      - "discovery.zen.ping.unicast.hosts=elasticsearch"
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-    volumes:
-      - esdata2:/usr/share/elasticsearch/data
-    networks:
-      - esnet
-    links:
-      - vaper-server
-  elasticsearch03:
-    image: docker.elastic.co/elasticsearch/elasticsearch-oss:6.2.2
-    container_name: elasticsearch03
-    hostname: elasticsearch03
-    environment:
-      - cluster.name=docker-cluster
-      - bootstrap.memory_lock=true
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-      - "discovery.zen.ping.unicast.hosts=elasticsearch"
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-    volumes:
-      - esdata3:/usr/share/elasticsearch/data
-    networks:
-      - esnet
-    links:
-      - vaper-server
-  elasticsearch04:
-    image: docker.elastic.co/elasticsearch/elasticsearch-oss:6.2.2
-    container_name: elasticsearch04
-    hostname: elasticsearch04
-    environment:
-      - cluster.name=docker-cluster
-      - bootstrap.memory_lock=true
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-      - "discovery.zen.ping.unicast.hosts=elasticsearch"
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-    volumes:
-      - esdata4:/usr/share/elasticsearch/data
-    networks:
-      - esnet
-    links:
-      - vaper-server
-  elasticsearch05:
-    image: docker.elastic.co/elasticsearch/elasticsearch-oss:6.2.2
-    container_name: elasticsearch05
-    hostname: elasticsearch05
-    environment:
-      - cluster.name=docker-cluster
-      - bootstrap.memory_lock=true
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-      - "discovery.zen.ping.unicast.hosts=elasticsearch"
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-    volumes:
-      - esdata5:/usr/share/elasticsearch/data
-    networks:
-      - esnet
-    links:
-      - vaper-server
-
+ 
   kibana:
-    image: docker.elastic.co/kibana/kibana-oss:6.2.2
+    image: kibana:5
     container_name: kibana
     hostname: kibana
     links:
@@ -139,19 +63,16 @@ services:
       - vaper-server
   
   logstash:
-    image: docker.elastic.co/logstash/logstash-oss:6.2.2
+    image: logstash:5
     container_name: logstash
     hostname: logstash
     volumes:
       - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf
     links:
       - elasticsearch01
-      - elasticsearch02
-      - elasticsearch03
-      - elasticsearch04
-      - elasticsearch05
     networks:
       - esnet
+    command: ["-f", "/usr/share/logstash/pipeline/logstash.conf"]
     links:
       - vaper-server
 
@@ -179,28 +100,8 @@ services:
       - logstash
       - vaper-server
 
-  metricbeat03:
-    image: athieriot/metricbeat
-    container_name: metricbeat03
-    hostname: metricbeat03
-    volumes:
-      - ./metricbeat.yml:/metricbeat/metricbeat.yml
-    networks:
-      - esnet
-    links:
-      - logstash
-      - vaper-server
-
 volumes:
   esdata1:
-    driver: local
-  esdata2:
-    driver: local
-  esdata3:
-    driver: local
-  esdata4:
-    driver: local
-  esdata5:
     driver: local
   neo4jdata:
     driver: local
