@@ -7,7 +7,9 @@ echo -e "\n[BUILD]"
 echo -e "comand:$buildCMD"
 
 # Build statically
+# Linux 64
 go build -o vaper_agent -ldflags '-linkmode "external" -extldflags "-static"'
+
 
 if [ $? -ne 0 ] ; then
   echo ">>> Error in build work, exit."

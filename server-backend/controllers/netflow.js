@@ -11,31 +11,26 @@ const driver = config.neo4jDriver
  * 提交网络流量关系数据。
  */
 exports.add = async (ctx) => {
-    try {
-        var req_body = ctx.request.body
-        var uid = req_body["Uid"]
-        const session = driver.session()
+    var req_body = ctx.request.body
+    var uid = req_body["Uid"]
+    const session = driver.session()
 
-        var networkFlows = req_body["NetworkFlows"]
-        // console.log(ctx.request.body)
-        for (let i = 0; i < networkFlows.length; i++) {
-            const relation = networkFlows[i]
-            var result = await searchFlow(session, relation)
-            console.log(relation)
-            if (result["records"].length <= 0) {
-                console.log("there is no relation")
-                var res2 = await addFlow(session, relation)
-            } else {
-                console.log("there is a relation")
-            }
-        } // end of for
-        ctx.body = {
-            "status": "success"
+    var networkFlows = req_body["NetworkFlows"]
+    var unixTimeStamp = req_body["UnixTime"]
+
+    for (let i = 0; i < networkFlows.length; i++) {
+        const relation = networkFlows[i]
+        var result = await searchFlow(session, relation)
+        if (result["records"].length <= 0) {
+            var res2 = await addFlow(session, relation, unixTimeStamp)
+        } else {
+            // console.log("there is a relation")
         }
-    } catch (e) {
-        ctx.status = 400
-        ctx.body = e.message
+    } // end of for
+    ctx.body = {
+        "status": "success"
     }
+
 }
 
 /**
@@ -82,73 +77,53 @@ exports.count = async (ctx) => {
  * 获取关系数据
  */
 exports.fetchLinks = async (ctx) => {
-    try {
-        
-        var req_body = ctx.request.body
-        var skip = req_body["skip"] ? req_body["skip"] : 0
-        var limit = req_body["limit"] ? req_body["limit"] : 10
 
-        const session = driver.session()
-        // var links = await fetchLinks(session)
+    var req_body = ctx.request.body
+    var skip = req_body["skip"] ? req_body["skip"] : 0
+    var limit = req_body["limit"] ? req_body["limit"] : 10
 
-        const result = await session.writeTransaction(tx => tx.run(
-            'MATCH (n)-[r]-(m) RETURN r skip $skip limit $limit', { skip: skip,limit:limit}))
-        var records = result["records"]
-        var links = []
-        if (records.length > 0) {
-            for (var i = 0; i < records.length; i++) {
-                var link = records[i].toObject()["r"]
-                var link = {
-                    "identity": link.identity.toString(),
-                    "source": link.start.toString(),
-                    "target": link.end.toString(),
-                    "value": 1
-                }
-                links.push(link)
+    const session = driver.session()
+    // var links = await fetchLinks(session)
+
+    const result = await session.writeTransaction(tx => tx.run(
+        'MATCH (client)-[r:REQUEST]->(server) RETURN client, r, server skip $skip limit $limit', {
+            skip: skip,
+            limit: limit
+        }))
+    var records = result["records"]
+    var links = []
+
+    if (records.length > 0) {
+        for (var i = 0; i < records.length; i++) {
+            var record_obj = records[i].toObject()
+            console.log(record_obj["client"])
+            console.log(record_obj["r"])
+            console.log(record_obj["server"])
+
+            var client = record_obj["client"]
+            var server = record_obj["server"]
+            var link = record_obj["r"]
+            var link_data = {
+                "identity": link.identity.toString(),
+                "source": link.start.toString(),
+                "target": link.end.toString(),
+                "time": link.time,
+                "value": 1
             }
-        }
-
-        ctx.body = {
-            "status": "success",
-            "links": links
-        }
-    } catch (error) {
-        ctx.status = 400
-        ctx.body = {
-            "status": "error",
-            "message": error.message
+            links.push(link_data)
         }
     }
+
+    ctx.body = {
+        "status": "success",
+        "links": links
+    }
+
 }
 
 /**
  * Public methods
  */
-
-
-/**
- * todo page
- * 
- */
-// async function fetchLinks(neo4jSession) {
-//     const result = await neo4jSession.writeTransaction(tx => tx.run(
-//         'MATCH (n)-[r]-(m) RETURN r'))
-//     var records = result["records"]
-//     var links = []
-//     if (records.length > 0) {
-//         for (var i = 0; i < records.length; i++) {
-//             var link = records[i].toObject()["r"]
-//             var link = {
-//                 "identity": link.identity.toString(),
-//                 "source": link.start.toString(),
-//                 "target": link.end.toString(),
-//                 "value": 1
-//             }
-//             links.push(link)
-//         }
-//     }
-//     return links
-// }
 
 /**
  * count
@@ -207,20 +182,61 @@ async function searchFlow(neo4jSession, flow) {
  * 新建一个未存储的关系
  * @param {*} NetRelations 
  */
-async function addFlow(neo4jSession, relation) {
+async function addFlow(neo4jSession, netflow, unixTimeStamp) {
+    
+    var CNRelation = netflowToClientNServerRelation(netflow)
+
+    var params = {
+        "clientIP": CNRelation["client"]["ip"],
+        "clientPort": CNRelation["client"]["port"],
+        "serverIp": CNRelation["server"]["ip"],
+        "serverPort": CNRelation["server"]["port"],
+        "count": netflow["Count"],
+        "packagesPerSecond": netflow["PackagesPerSecond"].toFixed(3),
+        "unixTimeStamp": unixTimeStamp
+    }
     const result = await neo4jSession.writeTransaction(tx => tx.run(
-        'MATCH(a), (b) ' +
-        'where $SrcIp in a.ips and $DstIp in b.ips ' +
-        'CREATE(a)-[r:tcp{count:0}]->(b)' +
-        'RETURN r', {
-            "SrcIp": relation["SrcIp"],
-            "DstIp": relation["DstIp"]
-        }))
-    console.log(relation)
+        'MATCH(client), (server) ' +
+        'where ($clientIP in client.ips and $serverIp in server.ips) ' +
+        'CREATE(client)-[r:REQUEST{count:$count,serverPort:$serverPort,pps:$packagesPerSecond,time:$unixTimeStamp}]->(server)' +
+        'RETURN r', params))
+
     return result
+}
+  
+/**
+ * The client port is - 1.
+ * @param {*} params 
+ */
+function netflowToClientNServerRelation(netflow) {
+    var hosta={
+        ip: netflow.SrcIp,
+        port: netflow.SrcPort,
+    }
+    var hostb = {
+        ip: netflow.DstIp,
+        port: netflow.DstPort,
+    }
+    if (netflow.SrcPort == -1 ) {
+        return {
+            "client": hosta,
+            "server": hostb
+        }
+    }else if(netflow.DstPort == -1 ){
+        return {
+            "client": hostb,
+            "server": hosta
+        }
+    }else{
+        return {
+            "client": hostb,
+            "server": hosta
+        }
+    }
 }
 
 
+    
 function getUniqIpsNetRelations(NetRelations) {
     var ips = []
     for (let i = 0; i < NetRelations.length; i++) {

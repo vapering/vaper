@@ -7,6 +7,7 @@ import (
     log "github.com/sirupsen/logrus"
     "github.com/robfig/cron"
     "github.com/satori/go.uuid"
+    "fmt"
 )
 
 
@@ -50,7 +51,7 @@ func (this *Actions) Start(config *Config){
     if( uuid_exist == "" && config.Uuid.Autogenerate == "1"){
         this.Init(config)
     }
-    println("start")
+
     c := cron.New()
 
     //host meta job
@@ -74,8 +75,6 @@ func (this *Actions) Start(config *Config){
     
     server_url := config.Server
     log.Info("The server url is : " + server_url)
-    println("Running......")
-
     select{}
 }
 
@@ -99,7 +98,8 @@ func main() {
     checkConfigFile(config.ConfigFilePath)
     
     version := config.Version
-    log.Info("VaperAgent - v"+ version + " " + config.Action)
+    log.Info("vaper_agent - v"+ version + " " + config.Action)
+    fmt.Println("vaper_agent - v"+ version + " " + config.Action)
     
     actions := Actions{}
     switch config.Action {
@@ -108,8 +108,8 @@ func main() {
     case "start":
         actions.Start(config)
     case "nothing" :
-        println("vaper_agent doesn't do anything, use -h for help.")
+        fmt.Println("vaper_agent doesn't do anything, use -h for help.")
     default:
-        println("vaper_agent doesn't do anything, use -h for help.")
+        fmt.Println("vaper_agent doesn't do anything, use -h for help.")
     }
 }

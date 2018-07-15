@@ -12,6 +12,8 @@ const driver = config.neo4jDriver
  */
 exports.add_or_update = async (ctx) => {
     var req_body = ctx.request.body
+    console.log(req_body)
+
     var hostname = req_body["Hostname"]
     var uid = req_body["Uid"]
     var ips = req_body["Ips"]
@@ -28,7 +30,7 @@ exports.add_or_update = async (ctx) => {
         ips: ips
     }
     var message = "";
-    //if unexist then add ,Or do nothing.
+    //if notexist then add ,Or do nothing.
     if (result.records.length > 0) {
         //there is a node the same as this.
         message = "there is an exist node in server."

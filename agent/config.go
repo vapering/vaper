@@ -29,9 +29,7 @@ type Config struct {
         NetworkFlow int `default: 10`
     }
 
-    Sampling struct{
-        Rate float64 `default: 0.1`
-    }
+    SamplingRate float64 `default: 1.0`
         
     Server string `default:"http://127.0.0.1:3000"`
 
@@ -55,21 +53,21 @@ func NewConfig () *Config{
     flag.StringVar(&config.Server, "ServerUrl", "http://127.0.0.1:3000", "ServerUrl")    
 
     //log level
-    flag.StringVar(&config.LogLevel, "loglevel", "info", "Log level: debug info warn error fatal panic")
+    flag.StringVar(&config.LogLevel, "LogLevel", "info", "Log level: debug info warn error fatal panic")
  
     //log path
-    flag.StringVar(&config.LogPath, "logpath", "./vaper_agent.log", "Log path")
-    
+    flag.StringVar(&config.LogPath, "LogPath", "./vaper_agent.log", "Log path")
+
     os.Setenv("CONFIGOR_ENV_PREFIX", "-")
     flag.Parse()
 
-    configor.Load(&config, *fconfig)
+    configor.Load(*fconfig)
+    configor.Load(&config)
+    
     
     //check
-    if config.Sampling.Rate > 1.0{
-        config.Sampling.Rate = 1.0
-    }else if config.Sampling.Rate < 0.1 {
-        config.Sampling.Rate = 0.1
+    if config.SamplingRate > 1.0 ||  config.SamplingRate < 0.1 {
+        config.SamplingRate = 1.0
     }
     
     //check config ,fix HostInfo = 0 when configitem is a int.
@@ -79,14 +77,14 @@ func NewConfig () *Config{
     if config.Frequency.NetworkFlow < 10 {
         config.Frequency.NetworkFlow = 10
     }
-
+    
     return &config
 }
 
 func (config *Config) InitLogger(){
     level := strings.ToLower(config.LogLevel)
     logpath := config.LogPath
-    file, err := os.OpenFile(logpath, os.O_CREATE|os.O_WRONLY, 0666)
+    file, err := os.OpenFile(logpath, os.O_WRONLY | os.O_CREATE | os.O_APPEND , 0666)
     if err == nil {
         log.SetOutput(file)
     } else {

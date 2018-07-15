@@ -90,7 +90,7 @@ func flowsSpeedCompute(tcpFlows []TcpFlow, durationUnixNano int64) []TcpFlow{
 
 func getNetworkFlowMsg(config *Config) *NetworkFlowMsg{
 
-    tcpFlows, durationUnixNano := tcpcatch(config.Frequency.NetworkFlow, config.Sampling.Rate)
+    tcpFlows, durationUnixNano := tcpcatch(config.Frequency.NetworkFlow, config.SamplingRate)
 
     uid := getUuid(config.Uuid.Path)
     dcFlows := flowsDistinctCount(tcpFlows)
