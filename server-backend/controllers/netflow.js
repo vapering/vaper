@@ -76,39 +76,42 @@ exports.count = async (ctx) => {
 /**
  * 获取关系数据
  */
-exports.fetchLinks = async (ctx) => {
+exports.get = async (ctx) => {
 
-    var req_body = ctx.request.body
-    var skip = req_body["skip"] ? req_body["skip"] : 0
-    var limit = req_body["limit"] ? req_body["limit"] : 10
+    var query = ctx.request.query
+
+    var skip = parseInt(query["skip"] ? query["skip"] : 0)
+    var limit = parseInt(query["limit"] ? query["limit"] : 10)
 
     const session = driver.session()
-    // var links = await fetchLinks(session)
 
     const result = await session.writeTransaction(tx => tx.run(
         'MATCH (client)-[r:REQUEST]->(server) RETURN client, r, server skip $skip limit $limit', {
             skip: skip,
             limit: limit
         }))
+    session.close()
     var records = result["records"]
     var links = []
 
     if (records.length > 0) {
         for (var i = 0; i < records.length; i++) {
             var record_obj = records[i].toObject()
-            console.log(record_obj["client"])
-            console.log(record_obj["r"])
-            console.log(record_obj["server"])
-
             var client = record_obj["client"]
             var server = record_obj["server"]
             var link = record_obj["r"]
+            console.log(link)
             var link_data = {
                 "identity": link.identity.toString(),
                 "source": link.start.toString(),
                 "target": link.end.toString(),
-                "time": link.time,
-                "value": 1
+                "value": 1,
+                
+                "client": record_obj["client"],
+                "server": record_obj["server"],
+                "time": link.properties.time,
+                "server_port": link.properties.serverPort,
+                "pps": link.properties.pps,
             }
             links.push(link_data)
         }
@@ -200,7 +203,7 @@ async function addFlow(neo4jSession, netflow, unixTimeStamp) {
         'where ($clientIP in client.ips and $serverIp in server.ips) ' +
         'CREATE(client)-[r:REQUEST{count:$count,serverPort:$serverPort,pps:$packagesPerSecond,time:$unixTimeStamp}]->(server)' +
         'RETURN r', params))
-
+    neo4jSession.close()
     return result
 }
   

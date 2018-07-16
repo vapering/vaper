@@ -2,9 +2,9 @@ import request from '@/utils/request'
 
 export function fetchLinks(query) {
   return request({
-    url: '/netflow/fetch',
-    method: 'post',
-    data: query
+    url: '/netflow/',
+    method: 'get',
+    params: query
   })
 }
 

@@ -6,8 +6,12 @@
         </div>
         <el-table :data="tableData" style="width: 100%" :stripe="true" :border="false" >
           <el-table-column prop="identity" label="identity"></el-table-column>
-          <el-table-column prop="source" label="source"></el-table-column>
-          <el-table-column prop="target" label="target"></el-table-column>
+           <el-table-column prop="client.properties.ips" label="client"></el-table-column>
+          <el-table-column prop="server.properties.ips" label="server"></el-table-column>
+          <el-table-column prop="server_port" label="port"></el-table-column>
+          <el-table-column prop="pps" label="Packages per second"></el-table-column>
+          <el-table-column prop="time" label="Update" :formatter="timeUnixToHuman"></el-table-column>
+          
         </el-table>
         <el-pagination
           @size-change="handleSizeChange"
@@ -27,6 +31,7 @@
 <script>
 import { fetchLinks } from '@/api/link'
 import { getLinksCount } from '@/api/link'
+import { dateFormat } from '@/filters/'
 
 export default {
   name: 'hostlist',
@@ -73,6 +78,11 @@ export default {
     handleSizeChange: function(val) {
       this.page.size = val
       this.loadData()
+    },
+    timeUnixToHuman: function(row, column, unixStamp, index) {
+      var date = new Date(unixStamp * 1000)
+      var text = dateFormat(date, 'yyyy-MM-dd hh:mm')
+      return text
     }
   },
   mounted() {
