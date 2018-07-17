@@ -20,12 +20,14 @@ exports.add = async (ctx) => {
 
     for (let i = 0; i < networkFlows.length; i++) {
         const relation = networkFlows[i]
-        var result = await searchFlow(session, relation)
-        if (result["records"].length <= 0) {
-            var res2 = await addFlow(session, relation, unixTimeStamp)
-        } else {
-            // console.log("there is a relation")
-        }
+        var res2 = await addFlow(session, relation, unixTimeStamp)
+
+        // var result = await searchFlow(session, relation)
+        // if (result["records"].length <= 0) {
+        //     var res2 = await addFlow(session, relation, unixTimeStamp)
+        // } else {
+        //     // console.log("there is a relation")
+        // }
     } // end of for
     ctx.body = {
         "status": "success"
@@ -154,15 +156,18 @@ async function searchByUids(neo4jSession, uids) {
     if (result.records.length > 0) {
         for (var i = 0; i < result.records.length; i++) {
             var relation = result.records[i].toObject()["r"]
+            console.log(relation)
             var relation_new = {
                 "identity": relation.identity.toString(),
                 "source": relation.start.toString(),
                 "target": relation.end.toString(),
+                "properties": relation.properties,
                 "value": 1
             }
             links.push(relation_new)
         }
     }
+    neo4jSession.close()
     return links
 }
 
@@ -198,10 +203,13 @@ async function addFlow(neo4jSession, netflow, unixTimeStamp) {
         "packagesPerSecond": netflow["PackagesPerSecond"].toFixed(3),
         "unixTimeStamp": unixTimeStamp
     }
+
     const result = await neo4jSession.writeTransaction(tx => tx.run(
-        'MATCH(client), (server) ' +
+        'MATCH (client), (server) ' +
         'where ($clientIP in client.ips and $serverIp in server.ips) ' +
-        'CREATE(client)-[r:REQUEST{count:$count,serverPort:$serverPort,pps:$packagesPerSecond,time:$unixTimeStamp}]->(server)' +
+        'MERGE (client)-[r:REQUEST{serverPort:$serverPort}]->(server)' +
+        'ON CREATE SET r.pps = $packagesPerSecond , r.time=$unixTimeStamp, r.count=$count ' +
+        'ON MATCH SET r.pps = $packagesPerSecond , r.time=$unixTimeStamp, r.count=$count ' +
         'RETURN r', params))
     neo4jSession.close()
     return result

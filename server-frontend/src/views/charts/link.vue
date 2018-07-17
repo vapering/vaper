@@ -1,9 +1,15 @@
 <template>
 <div class="chart-container">
   <el-row style="height:100%;">
-    <el-col :md="6" :sm=24 >
-      <div class="box-card" v-if="mainNode != undefined">
+    <el-col :span="18" style="height:100%;">
+      <div id="nodes-graph" ></div>
+    </el-col>
+    <el-col :span="6">
+      <el-card class="box-card" v-if="mainNode != undefined">
         <h3>{{$t('link.CentralNode')}}</h3>
+<!--         <div class="text item">
+          identity: {{mainNode.identity}}
+        </div> -->
         <div class="text item">
           {{$t('host.hostname')}}: {{mainNode.properties.hostname}}
         </div>
@@ -13,33 +19,19 @@
         <div class="text item">
           {{$t('host.tag')}}: {{mainNode.properties.tags}}
         </div>
-      </div>
-      <div class="box-card" v-if="node_hover.identity != ''">
-        <div class="text item">
-          <h3>{{$t('link.SelectedNode')}} </h3>
-        </div>
-        <div class="text item">
-          {{$t('host.hostname')}}: {{node_hover.properties.hostname}}
-        </div>
-        <div class="text item">
-          {{$t('host.ips')}}: {{node_hover.properties.ips}}
-        </div>
-        <div class="text item">
-          {{$t('host.tag')}}: {{node_hover.properties.tags}}
-        </div>
-      </div>
-      <div class="box-card" >
-        <el-form label-width="90px">
+      </el-card>
+      <el-card class="box-card" >
+        <el-form label-width="120px">
           <el-form-item :label="$t('link.deepth')">
-            <el-input-number v-model="deepth" @change="handleChange" :min="1" :max="10" style="width:120px;"></el-input-number>
+            <el-input-number v-model="deepth" @change="handleChange" :min="1" :max="10"></el-input-number>
           </el-form-item>
-          <!-- <el-form-item :label="$t('link.Dimension')">
+          <el-form-item :label="$t('link.Dimension')">
             <el-radio-group v-model="dimension" @change="dimensionChange">
               <el-radio :label="2">2D</el-radio>
               <el-radio :label="3">3D</el-radio>
             </el-radio-group>
-          </el-form-item> -->
-          <el-form-item :label="$t('link.TextonNode')" >
+          </el-form-item>
+          <el-form-item :label="$t('link.TextonNode')" v-if="dimension==2">
             <el-select v-model="pointText" placeholder="choose" @change="pointChange">
               <el-option
                 v-for="item in pointTextOptions"
@@ -49,51 +41,40 @@
               </el-option>
             </el-select>
           </el-form-item>
-
-          <el-form-item :label="$t('link.ClusterK')">
-            <el-input-number v-model="clusterK" :min="2" :max="100" style="width:120px;"></el-input-number>
-          </el-form-item>
-          <el-form-item v-if="isClusterReady">
-            <el-button type="primary" @click="cluster">{{$t('link.Cluster')}}</el-button>
-          </el-form-item>
         </el-form>
-
-      </div>
-      <div class="box-card" v-if="cluster_groups.length > 0">
-        <div v-for="(item, key) in cluster_groups" :key="key">
-          <br>
-          Group {{key+1}}:
-          <li v-for="(v, k) in item" :key="k" >
-            {{v.id}};
-            {{v.properties.hostname}};
-            {{v.properties.ips}};
-            {{v.properties.tags}};
-          </li>
+      </el-card>
+      <el-card class="box-card" v-if="node_hover.identity != ''">
+        <div class="text item">
+          <h3>{{$t('link.SelectedNode')}} </h3>
         </div>
-      </div>
-    </el-col>
-    <el-col style="height:100%;" :md="18" :sm=24  >
-      <div id="nodes-graph" >
-        
-      </div>
+<!--         <div class="text item">
+          Id in Neo4j: {{node_hover.identity}}
+        </div>
+        <div class="text item">
+          Unique id: {{node_hover.properties.uid}}
+        </div> -->
+        <div class="text item">
+          {{$t('host.hostname')}}: {{node_hover.properties.hostname}}
+        </div>
+        <div class="text item">
+          {{$t('host.ips')}}: {{node_hover.properties.ips}}
+        </div>
+        <div class="text item">
+          {{$t('host.tag')}}: {{node_hover.properties.tags}}
+        </div>
+      </el-card>
     </el-col>
   </el-row>
 </div>
 </template>
 
 <script>
-// import ForceGraph3D from '3d-force-graph'
-// import * as echarts from 'echarts'
-// import * as d3 from 'd3'
-
-// import axios from 'axios'
-
+import ForceGraph3D from '3d-force-graph'
+import axios from 'axios'
 import { fetchListByIdNDeepth } from '@/api/host'
 import { fetchListByUids } from '@/api/host'
-import { netflowSearch } from '@/api/link'
-// import $ from 'jquery'
-
-const kmeans = require('node-kmeans')
+import * as echarts from 'echarts'
+import $ from 'jquery'
 
 export default {
   name: 'HelloWorld',
@@ -111,9 +92,7 @@ export default {
       mainUid: 0,
       mainNode: undefined,
       myGraph: {},
-      isClusterReady: false,
-      clusterK: 3,
-      graph: {},
+      dimension: 2,
       pointTextOptions: [
         {
           value: 'hostname',
@@ -129,18 +108,29 @@ export default {
         }
       ],
       pointText: 'hostname',
-      pointTextDefault: 'hostname',
-      cluster_groups: []
+      pointTextDefault: 'hostname'
     }
   },
   methods: {
+    dimensionChange: function(value) {
+      if (this.dimension === 2) {
+        this.myGraph.resetProps()
+        this.myGraph = {}
+        $('#nodes-graph').html()
+      } else if (this.dimension === 3) {
+        this.myGraph.dispose()
+      }
+      this.dimension = value
+      this.getNodesByIdNDeepth(this.mainUid, this.deepth)
+    },
     /**
      * @augments id array
      */
     getLinks: function(uids) {
       var self = this
-      netflowSearch({ uids: uids })
-        .then(response => {
+      axios
+        .post('/api/netflow/search', { uids: uids })
+        .then(function(response) {
           var links = response.data.links
           var links_ = []
           var links_rich = []
@@ -156,43 +146,142 @@ export default {
           }
           self.links = links_
           self.links_rich = links_rich
-          self.initGraphByD3(this.nodes_rich, this.links)
-          // for test
-          // d3.json('/static/lib/miserables.with-ids.json', function(error, graph) {
-          //   if (!error) {
-          //     // console.log('graph', graph);
-          //     self.initGraphByD3(graph.nodes, graph.links)
-          //   } else {
-          //     console.error(error)
-          //   }
-          // })// end of json
+          var dom = document.getElementById('nodes-graph')
+          var width = $('#nodes-graph').width()
+          if (self.dimension === 2) {
+            self.initGraphByEcharts(dom, width)
+          } else if (self.dimension === 3) {
+            self.initGraphByForceGraph3D(dom, width)
+          }
         })
-        .catch(err => {
-          this.fetchSuccess = false
-          console.log(err)
+        .catch(function(error) {
+          console.error(error)
         })
     },
-    initGraphByD3: function(nodes, links) {
-      var dom = document.getElementById('nodes-graph')
-      // var width = $('#nodes-graph').width()
+    initGraphByForceGraph3D: function(dom, width) {
+      var myGraph = ForceGraph3D()(dom)
+      myGraph.width(width)
+      myGraph.height('800')
+      myGraph.forceEngine('d3')
+      myGraph.backgroundColor('#000033')
+      myGraph.linkColorField('color')
+      myGraph.lineOpacity(0.2)
+      myGraph.colorField('color')
+      myGraph.d3AlphaDecay(0.1)
+      myGraph.nodeResolution(16)
+      myGraph.showNavInfo(false)
+      myGraph.graphData({
+        nodes: this.nodes,
+        links: this.links
+      }) // end of graphData
       var self = this
-      dom.innerHTML = '<svg id="link-svg" />'
-      // eslint-disable-next-line
-      var svg = d3.select('#nodes-graph')
-      var count = 0
-
-      // eslint-disable-next-line
-      var graph = createV4SelectableForceDirectedGraph(svg, { 'nodes': nodes, 'links': links }, function(graph) {
-        if (graph.count >= (count + 300)) {
-          count = graph.count
-          self.graph = graph
-          self.isClusterReady = true
-          // 启动聚类
-          // debugger
+      myGraph.onNodeHover(function(node) {
+        if (node != null) {
+          var uid = node.id
+          var node_t = self.search_node_rich(uid)
+          if (node_t !== false) {
+            self.node_hover = node_t
+          }
         }
-        console.log(graph.nodes[0]['x'])
       })
-    },
+      this.myGraph = myGraph
+    }, // end of initGraphByForceGraph3D
+    initGraphByEcharts: function(dom, width) {
+      var nodes = []
+      var self = this
+      // 处理node数据
+      for (var i = 0; i < this.nodes_rich.length; i++) {
+        var node = this.nodes_rich[i]
+        nodes.push({
+          name: node.identity,
+          x: null,
+          y: null,
+          label: {
+            formatter: function(params) {
+              var uid = params.data.name
+              var node_t = self.search_node_rich(uid)
+              if (node_t !== false) {
+                var labels = node_t.properties[self.pointText]
+                if (labels === undefined || labels.length === 0) {
+                  return node_t.properties[self.pointTextDefault]
+                } else {
+                  return labels
+                }
+              } else {
+                return 'Unknown'
+              }
+            }
+          }
+        })
+      }
+      // 处理link数据
+      var links = []
+      for (i = 0; i < this.links_rich.length; i++) {
+        var link = this.links_rich[i]
+        links.push({
+          source: link.source,
+          target: link.target
+        })
+      }
+      this.myGraph = echarts.init(dom)
+      var option = {
+        title: {
+          text: 'Echarts'
+        },
+        animationDurationUpdate: 1500,
+        animationEasingUpdate: 'quinticInOut',
+        tooltip: {
+          trigger: 'item',
+          formatter: function(params, ticket, callback) {
+            if (params.dataType === 'edge' && params.seriesType === 'graph') {
+              var data = params.data
+              var link_rich = self.search_rich_link(data)
+              var sourceNode = self.search_node_rich(data.source)
+              var targetNode = self.search_node_rich(data.target)
+              var html = '<div>' + sourceNode.properties.hostname + ' -> ' + targetNode.properties.hostname + ' : ' + link_rich.properties.serverPort + '</div>'
+              return html
+            } else {
+              return ''
+            }
+          }
+        },
+        series: [
+          {
+            type: 'graph',
+            layout: 'force',
+            roam: true,
+            symbol: 'circle',
+            symbolSize: 30,
+            cursor: 'pointer',
+            focusNodeAdjacency: false,
+            label: {
+              position: 'middle',
+              normal: {
+                fontSize: 12,
+                show: true
+              }
+            },
+            draggable: true,
+            data: nodes,
+            edgeSymbol: ['circle', 'arrow'],
+            edgeSymbolSize: [3, 12],
+            links: links,
+            force: {
+              initLayout: 'circle',
+              repulsion: 1000
+            }
+          }
+        ]
+      } // end of option
+      this.myGraph.setOption(option)
+      this.myGraph.on('click', function(params) {
+        var name = params.data.name
+        var node = self.search_node_rich(name)
+        if (node !== false) {
+          self.node_hover = node
+        }
+      })
+    }, // end of initGraphByEcharts
     getNodesByUids: function(uids) {
       var self = this
       fetchListByUids({ uids: uids })
@@ -203,10 +292,6 @@ export default {
           var nodes_rich = []
           for (let i = 0; i < data.length; i++) {
             const node = data[i]
-            node['id'] = node.identity
-            node['group'] = 1
-            // node['color'] = '#CCFFFF'
-            node['name'] = node.properties[self.pointText]
             nodes_rich.push(node)
             uids.push(node.properties.uid)
             nodes.push({
@@ -234,18 +319,26 @@ export default {
       }
       return false
     },
-    search_node_rich: function(uid) {
+    search_node_rich: function(identity) {
       for (var i = 0; i < this.nodes_rich.length; i++) {
         var node = this.nodes_rich[i]
-        if (node['identity'] === uid) {
+        if (node['identity'] === identity) {
           return node
+        }
+      }
+      return false
+    },
+    search_rich_link: function(link) {
+      for (var i = 0; i < this.links_rich.length; i++) {
+        var link_rich = this.links_rich[i]
+        if (link['source'] === link_rich['source'] && link['target'] === link_rich['target']) {
+          return link_rich
         }
       }
       return false
     },
     getNodesByIdNDeepth: function(identity, deepth) {
       var self = this
-      self.isClusterReady = false
       var uids = [identity]
       fetchListByIdNDeepth({ identity: identity, deepth: deepth })
         .then(response => {
@@ -256,6 +349,8 @@ export default {
             uids.push(node['properties']['uid'])
           }
           self.getNodesByUids(uids)
+          // var data = response['data']
+          // this.tableData = data['nodes']
         })
         .catch(err => {
           this.fetchSuccess = false
@@ -267,34 +362,6 @@ export default {
     },
     pointChange: function() {
       this.getNodesByIdNDeepth(this.mainUid, this.deepth)
-    },
-    cluster: function() {
-      // Create the data 2D-array (vectors) describing the data
-      this.cluster_groups = []
-      var nodes = this.graph.nodes
-      const vectors = []
-      for (let i = 0; i < nodes.length; i++) {
-        vectors[i] = [nodes[i]['x'], nodes[i]['y']]
-      }
-      var res = kmeans.clusterize(vectors, { k: this.clusterK }, (err, res) => {
-        if (err) console.error(err)
-        else console.log('%o', res)
-      })
-      var groups = res.groups
-      for (let i = 0; i < groups.length; i++) {
-        const item = groups[i]
-        var clusterInds = item.clusterInd
-        for (let j = 0; j < clusterInds.length; j++) {
-          const ind = clusterInds[j]
-          nodes[ind]['group'] = i + 1
-          if (!(i in this.cluster_groups)) {
-            this.cluster_groups[i] = []
-          }
-          this.cluster_groups[i].push(nodes[ind])
-        }
-      }
-      this.graph.nodes = nodes
-      this.initGraphByD3(this.graph.nodes, this.graph.links)
     }
   },
   mounted() {
@@ -311,7 +378,7 @@ export default {
 <style scoped>
 .chart-container {
   position: relative;
-  padding: 6px;
+  padding: 20px;
   width: 100%;
   height: 100%;
 }
@@ -319,30 +386,4 @@ export default {
   width: 100%;
   height: 100%;
 }
-.box-card{
-  margin: 6px;
-  padding:12px 6px;
-  box-shadow: 0px 0px 6px 1px rgba(200,200,200,0.5)
-}
-
-#nodes-graph svg {
-    border: 1px solid;
-    font: 6px sans-serif;
-    text-anchor: end;
-}
-
-#nodes-graph .node {
-  stroke-width: 1px;
-}
-
-.node .selected {
-  stroke: black;
-}
-
-line {
-  stroke: #999;
-}
-
-
 </style>
-
