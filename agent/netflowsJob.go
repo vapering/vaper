@@ -7,6 +7,7 @@ import (
     "time"
     log "github.com/sirupsen/logrus"
     "strconv"
+    "github.com/vapering/GOnetstat"
 )
 /* 
 type Flow struct{
@@ -29,16 +30,7 @@ func NewNetworkFlowMsg(uid string,networkFlows []TcpFlow) *NetworkFlowMsg{
 
     return &networkFlowMsg
 }
-/* 
-type TcpFlow{
-    SrcIp String
-    DstIp String
 
-    SrcPort int
-    DstPort int
-    Count int
-}
- */
 // need test
 // the flow has direction so ...
 func (flow *TcpFlow) IsEqual(flow_t TcpFlow)bool{
@@ -76,6 +68,7 @@ func flowsDistinctCount(tcpFlows []TcpFlow) []TcpFlow{
 
     return dcFlows
 } 
+
 func flowsSpeedCompute(tcpFlows []TcpFlow, durationUnixNano int64) []TcpFlow{
     for index,flow := range tcpFlows{
         count := flow.Count
@@ -88,6 +81,56 @@ func flowsSpeedCompute(tcpFlows []TcpFlow, durationUnixNano int64) []TcpFlow{
     return tcpFlows
 } 
 
+func stringSliceToMap(slice []string)(map[string]struct{}){
+    tmap := make(map[string] struct{})
+    for _,item := range slice{
+        tmap[item] = struct{}{}
+    }
+    return tmap
+}
+func getProcessPortMap() map[int] string{
+
+    processPortMap := map[int]string{}
+    d := GOnetstat.Tcp()
+
+    for _, p := range(d) {
+        if p.State == "LISTEN" {
+            tport := int(p.Port)
+            processPortMap[tport] = p.Name
+        }
+    }
+    return processPortMap
+}
+
+
+// find the process name by port
+func addProcessName(tcpFlows []TcpFlow) []TcpFlow{
+    ips := get_internal_ips()
+
+    ips_map := stringSliceToMap(ips)
+    processPortMap := getProcessPortMap()
+
+
+    for index,flow := range tcpFlows{
+        if flow.DstPort == -1 {
+            if _,ok := ips_map[flow.SrcIp]; ok{
+                if item,ok := processPortMap[flow.SrcPort]; ok{
+                    tcpFlows[index].ProcessName = item
+
+                }
+            }
+        }else{
+            if _,ok := ips_map[flow.DstIp]; ok{
+                if item,ok := processPortMap[flow.DstPort]; ok{
+                    tcpFlows[index].ProcessName = item
+                }
+            }
+        }
+    }
+
+    return tcpFlows
+}
+
 func getNetworkFlowMsg(config *Config) *NetworkFlowMsg{
 
     tcpFlows, durationUnixNano := tcpcatch(config.Frequency.NetworkFlow, config.SamplingRate)
@@ -95,10 +138,11 @@ func getNetworkFlowMsg(config *Config) *NetworkFlowMsg{
     uid := getUuid(config.Uuid.Path)
     dcFlows := flowsDistinctCount(tcpFlows)
     dcFlows = flowsSpeedCompute(dcFlows, durationUnixNano)
-
+    dcFlows = addProcessName(dcFlows)
 
     return NewNetworkFlowMsg(uid, dcFlows)
 }
+
 
 type NetworkflowsJob struct{
     config *Config
@@ -112,6 +156,7 @@ func NewNetworkflowsJob (config *Config) NetworkflowsJob{
 
 func (this NetworkflowsJob)Run(){
     nwfMsg := getNetworkFlowMsg(this.config)
+
     if nwfMsg.NetworkFlows == nil{
         log.Debug("0 data was catched during this round.")
         return
@@ -141,7 +186,7 @@ func postMsg(url string, msg string) bool {
         defer res.Body.Close()
         body, err := ioutil.ReadAll(res.Body)
         if err != nil{
-            log.Error("send msg info fail.detail:" + err.Error())
+            log.Error("Read msg info fail.detail:" + err.Error())
             return false
         }else{
             log.Debug("response:" + string(body))

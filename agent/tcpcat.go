@@ -39,6 +39,7 @@ type TcpFlow struct{
     SrcPort int
     DstPort int
 
+    ProcessName string
     PackagesPerSecond float64
     Count int
 }
@@ -53,6 +54,7 @@ func NewTcpFlow(SrcIp string, DstIp string, SrcPort int, DstPort int)* TcpFlow{
     tcpFlow.DstPort = DstPort
     tcpFlow.PackagesPerSecond = 0.1
     tcpFlow.Count = 0
+    tcpFlow.ProcessName = ""
 
     return &tcpFlow
 }

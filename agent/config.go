@@ -61,8 +61,8 @@ func NewConfig () *Config{
     os.Setenv("CONFIGOR_ENV_PREFIX", "-")
     flag.Parse()
 
-    configor.Load(*fconfig)
-    configor.Load(&config)
+    configor.Load(&config, *fconfig)
+
     
     
     //check

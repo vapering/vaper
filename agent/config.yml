@@ -5,7 +5,7 @@ uuid:
     # default: "./vaper_agent.uid"
     # The uuid（Universally Unique Identifier） of this host
     # agent will generate a new uuid when run: vaper_agent -a init.
-    path: "./vaper_agent.uidd"
+    path: "./vaper_agent.uid"
 
     # autogenerate
     # 0 : Only try to read the uuid.txt.

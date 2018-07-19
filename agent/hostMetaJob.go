@@ -8,6 +8,7 @@ import (
     "io/ioutil"
     "encoding/json"
     log "github.com/sirupsen/logrus"
+    "time"
 )
 
 // get host name 获取主机名称
@@ -43,6 +44,8 @@ type Host struct{
     Hostname string
     Uid string // unique id for this host
     Ips []string
+
+    UnixTime int64
 }
 
 func getHostMeta(config * Config) Host{
@@ -50,6 +53,7 @@ func getHostMeta(config * Config) Host{
     host.Hostname = getHostname()
     host.Ips = get_internal_ips()
     host.Uid = getUuid(config.Uuid.Path)
+    host.UnixTime = time.Now().Unix()
     return host
 }
 
@@ -60,9 +64,10 @@ func sendHost(url string, host Host) bool {
     req, _ := http.NewRequest("POST", url, payload)
     req.Header.Add("content-type", "application/json")
     res, err := http.DefaultClient.Do(req)
+    log.Debug("send host info :" + host_str)
     if(err != nil){
-				log.Error("send host info fail.detail:"+err.Error())
-				return false
+        log.Error("send host info fail.detail:"+err.Error())
+        return false
     }
     defer res.Body.Close()
     body, _ := ioutil.ReadAll(res.Body)
