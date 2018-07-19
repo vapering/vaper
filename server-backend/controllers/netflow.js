@@ -21,18 +21,10 @@ exports.add = async (ctx) => {
     for (let i = 0; i < networkFlows.length; i++) {
         const relation = networkFlows[i]
         var res2 = await addFlow(session, relation, unixTimeStamp)
-
-        // var result = await searchFlow(session, relation)
-        // if (result["records"].length <= 0) {
-        //     var res2 = await addFlow(session, relation, unixTimeStamp)
-        // } else {
-        //     // console.log("there is a relation")
-        // }
-    } // end of for
+    }
     ctx.body = {
         "status": "success"
     }
-
 }
 
 /**
@@ -102,7 +94,7 @@ exports.get = async (ctx) => {
             var client = record_obj["client"]
             var server = record_obj["server"]
             var link = record_obj["r"]
-            console.log(link)
+
             var link_data = {
                 "identity": link.identity.toString(),
                 "source": link.start.toString(),
@@ -112,6 +104,8 @@ exports.get = async (ctx) => {
                 "client": record_obj["client"],
                 "server": record_obj["server"],
                 "time": link.properties.time,
+                "clientIp": link.properties.clientIP,
+                "serverIp": link.properties.serverIp,
                 "server_port": link.properties.serverPort,
                 "pps": link.properties.pps,
             }
@@ -199,15 +193,17 @@ async function addFlow(neo4jSession, netflow, unixTimeStamp) {
         "clientPort": CNRelation["client"]["port"],
         "serverIp": CNRelation["server"]["ip"],
         "serverPort": CNRelation["server"]["port"],
+        "serverPort": CNRelation["server"]["port"],
         "count": netflow["Count"],
         "packagesPerSecond": netflow["PackagesPerSecond"].toFixed(3),
-        "unixTimeStamp": unixTimeStamp
+        "unixTimeStamp": unixTimeStamp,
+        "processName" : CNRelation["processName"]
     }
 
     const result = await neo4jSession.writeTransaction(tx => tx.run(
         'MATCH (client), (server) ' +
         'where ($clientIP in client.ips and $serverIp in server.ips) ' +
-        'MERGE (client)-[r:REQUEST{serverPort:$serverPort}]->(server)' +
+        'MERGE (client)-[r:REQUEST{clientIP:$clientIP, serverIp:$serverIp, serverPort:$serverPort,processName:$processName}]->(server)' +
         'ON CREATE SET r.pps = $packagesPerSecond , r.time=$unixTimeStamp, r.count=$count ' +
         'ON MATCH SET r.pps = $packagesPerSecond , r.time=$unixTimeStamp, r.count=$count ' +
         'RETURN r', params))
@@ -228,24 +224,27 @@ function netflowToClientNServerRelation(netflow) {
         ip: netflow.DstIp,
         port: netflow.DstPort,
     }
+    var relation = {}
+    
     if (netflow.SrcPort == -1 ) {
-        return {
+        relation = {
             "client": hosta,
             "server": hostb
         }
     }else if(netflow.DstPort == -1 ){
-        return {
+        relation = {
             "client": hostb,
             "server": hosta
         }
     }else{
-        return {
+        relation = {
             "client": hostb,
             "server": hosta
         }
     }
+    relation["processName"] = netflow.ProcessName
+    return relation
 }
-
 
     
 function getUniqIpsNetRelations(NetRelations) {

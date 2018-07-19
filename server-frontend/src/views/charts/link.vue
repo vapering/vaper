@@ -261,6 +261,22 @@ export default {
                 show: true
               }
             },
+            edgeLabel: {
+              show: true,
+              position: 'middle',
+              formatter: function(params, ticket, callback) {
+                if (params.dataType === 'edge' && params.seriesType === 'graph') {
+                  var data = params.data
+                  var link_rich = self.search_rich_link(data)
+                  // var sourceNode = self.search_node_rich(data.source)
+                  // var targetNode = self.search_node_rich(data.target)
+                  var html = 'Port: ' + link_rich.properties.serverPort
+                  return html
+                } else {
+                  return ''
+                }
+              }
+            },
             draggable: true,
             data: nodes,
             edgeSymbol: ['circle', 'arrow'],
@@ -268,7 +284,7 @@ export default {
             links: links,
             force: {
               initLayout: 'circle',
-              repulsion: 1000
+              repulsion: 6000
             }
           }
         ]

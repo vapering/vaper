@@ -12,36 +12,29 @@ const driver = config.neo4jDriver
  */
 exports.add_or_update = async (ctx) => {
     var req_body = ctx.request.body
-    console.log(req_body)
-
     var hostname = req_body["Hostname"]
     var uid = req_body["Uid"]
     var ips = req_body["Ips"]
+    var unixTime = req_body["UnixTime"]
 
-    //Neo4j action:
     const session = driver.session();
-    // session.close();
-
-    var result = await searchNode(session, uid)
-    // console.log(result.records.length)
-    var newNode = {
+    
+    var params = {
         hostname: hostname,
         uid: uid,
-        ips: ips
+        ips: ips,
+        updateTime: unixTime
     }
-    var message = "";
-    //if notexist then add ,Or do nothing.
-    if (result.records.length > 0) {
-        //there is a node the same as this.
-        message = "there is an exist node in server."
-    } else {
-        var addResult = await addNode(session, newNode)
-        // console.log(addResult)
-        message = "add success."
-    }
+    const result = await session.writeTransaction(tx => tx.run(
+        'MERGE (node:host{uid:$uid}) ' +
+        'ON CREATE SET node.hostname = $hostname , node.ips=$ips, node.time=$updateTime ' +
+        'ON MATCH SET node.hostname = $hostname , node.ips=$ips, node.time=$updateTime ' +
+        'RETURN node', params))
+
+    session.close()
     ctx.body = {
         "status": "success",
-        "message": message
+        "message": "Add " + result.records.length + "host."
     }
 }
 
@@ -187,7 +180,7 @@ exports.delete = async (ctx) => {
     } else if (uids.length == 0) {
         throw new Error("Param uids should not be empty.");
     }
-    console.log(uids[0])
+
     const session = driver.session();
     //Delete node and links
     session.run('MATCH (anode)-[link]-(bnode)  WHERE anode.uid IN $uids  DELETE anode,link', {
@@ -199,6 +192,7 @@ exports.delete = async (ctx) => {
         throw error;
         console.error(error);
     })
+    
     //Delete node only 
     session.run('MATCH (anode)  WHERE anode.uid IN $uids  DELETE anode', {
         uids: uids
