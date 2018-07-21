@@ -33,7 +33,7 @@ frequency:
     # networkflow
     # default: "10"
     # Send networkflow info every n seconds.
-    # networkflow > 10
+    # networkflow >= 10
     networkflow: 10
 
 # default 1.0

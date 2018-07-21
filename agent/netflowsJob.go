@@ -7,15 +7,8 @@ import (
     "time"
     log "github.com/sirupsen/logrus"
     "strconv"
-    "github.com/vapering/GOnetstat"
 )
-/* 
-type Flow struct{
-    SrcIp string
-    DstIp string
-    Count int
-}
- */
+
 type NetworkFlowMsg struct{
     Uid string
     NetworkFlows []TcpFlow
@@ -81,36 +74,17 @@ func flowsSpeedCompute(tcpFlows []TcpFlow, durationUnixNano int64) []TcpFlow{
     return tcpFlows
 } 
 
-func stringSliceToMap(slice []string)(map[string]struct{}){
-    tmap := make(map[string] struct{})
-    for _,item := range slice{
-        tmap[item] = struct{}{}
-    }
-    return tmap
-}
-func getProcessPortMap() map[int] string{
-
-    processPortMap := map[int]string{}
-    d := GOnetstat.Tcp()
-
-    for _, p := range(d) {
-        if p.State == "LISTEN" {
-            tport := int(p.Port)
-            processPortMap[tport] = p.Name
-        }
-    }
-    return processPortMap
-}
-
-
 // find the process name by port
-func addProcessName(tcpFlows []TcpFlow) []TcpFlow{
-    ips := get_internal_ips()
+func (this NetworkflowsJob)addProcessName(tcpFlows []TcpFlow) []TcpFlow{
+    log.Debug("ProcessNetInfoChan len: " + strconv.Itoa(len(this.ProcessNetInfoChan)))
+    if len(this.ProcessNetInfoChan) < 10 {
+        generateProcessNetInfo(this.ProcessNetInfoChan, 10)
+    }
 
-    ips_map := stringSliceToMap(ips)
-    processPortMap := getProcessPortMap()
-
-
+    processNetInfo := <- this.ProcessNetInfoChan
+    ips_map := processNetInfo.Ips
+    processPortMap := processNetInfo.ProcessPorts
+    
     for index,flow := range tcpFlows{
         if flow.DstPort == -1 {
             if _,ok := ips_map[flow.SrcIp]; ok{
@@ -131,31 +105,36 @@ func addProcessName(tcpFlows []TcpFlow) []TcpFlow{
     return tcpFlows
 }
 
-func getNetworkFlowMsg(config *Config) *NetworkFlowMsg{
+func (this NetworkflowsJob)getNetworkFlowMsg(config *Config) *NetworkFlowMsg{
 
     tcpFlows, durationUnixNano := tcpcatch(config.Frequency.NetworkFlow, config.SamplingRate)
 
     uid := getUuid(config.Uuid.Path)
     dcFlows := flowsDistinctCount(tcpFlows)
     dcFlows = flowsSpeedCompute(dcFlows, durationUnixNano)
-    dcFlows = addProcessName(dcFlows)
+    
+    dcFlows = this.addProcessName(dcFlows)
 
     return NewNetworkFlowMsg(uid, dcFlows)
+
 }
 
 
 type NetworkflowsJob struct{
     config *Config
+    ProcessNetInfoChan chan ProcessNetInfo 
 } 
 
 func NewNetworkflowsJob (config *Config) NetworkflowsJob{
     networkflowsJob := NetworkflowsJob{}
     networkflowsJob.config = config
+    networkflowsJob.ProcessNetInfoChan = make(chan ProcessNetInfo, 200)
+    generateProcessNetInfo(networkflowsJob.ProcessNetInfoChan, 20)
     return networkflowsJob
 }
 
 func (this NetworkflowsJob)Run(){
-    nwfMsg := getNetworkFlowMsg(this.config)
+    nwfMsg := this.getNetworkFlowMsg(this.config)
 
     if nwfMsg.NetworkFlows == nil{
         log.Debug("0 data was catched during this round.")

@@ -71,6 +71,8 @@ func (this *Actions) Start(config *Config){
     c.AddJob("@every "+ networkFlowFrequency +"s", networkflowsJob)
     log.Info("The Interfaces list :"+ InterfacesToString(getAllInterfaces()))
     
+
+
     c.Start()
     
     server_url := config.Server

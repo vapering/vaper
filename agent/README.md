@@ -1,7 +1,7 @@
 # Agent
 
 [Documentation](https://vapering.github.io/vaper/#/)  
-Agent is a golang program. Collect netflow data and hostmeta info from operating system.  
+Agent is a golang program. Collect netflow, hostmeta, processname info from operating system.  
 
 
 ## Run
@@ -10,17 +10,20 @@ Agent is a golang program. Collect netflow data and hostmeta info from operating
 
 ## Usage of vaper_agent:
 ```
+  -LogLevel string
+        Log level: debug info warn error fatal panic (default "info")
+  -LogPath string
+        Log path (default "./vaper_agent.log")
   -ServerUrl string
         ServerUrl (default "http://127.0.0.1:3000")
   -a string
         action: init/start (default "nothing")
   -f string
         configuration file (default "./config.yml")
-  -loglevel string
-        Log level: debug info warn error fatal panic (default "info")
-  -logpath string
-        Log path (default "./vaper_agent.log")
 ```
+
+> In most of the cases vaper_agent neet root authority to work properly except container.  
+> You should run vaper_agent with the same user as application in docker container, or the agent can not get process name in correct.
 
 ## Example
 
@@ -56,8 +59,8 @@ Vaper-agent need `libpcap` in the development environment. Nobody want to waste 
 
 ### How to compile libpcap statically
 ```shell
-$ wget http://www.tcpdump.org/beta/libpcap-1.2.0rc1.tar.gz
-$ tar xf libpcap-1.2.0rc1.tar.gz && cd libpcap-1.2.0rc1
+$ wget http://www.tcpdump.org/release/libpcap-1.8.1.tar.gz
+$ tar xzf libpcap-1.8.1.tar.gz && cd libpcap-1.8.1
 $ ./configure && make
 $ find -name "libpcap.so*" -o -name "libpcap.a"
 ./libpcap.a
