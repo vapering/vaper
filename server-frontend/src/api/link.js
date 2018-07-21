@@ -16,9 +16,9 @@ export function getLinksCount(query) {
   })
 }
 
-export function netflowSearch(query) {
+export function searchLinksByNodes(query) {
   return request({
-    url: '/netflow/search',
+    url: '/netflow/search/by/nodes',
     method: 'post',
     data: query
   })

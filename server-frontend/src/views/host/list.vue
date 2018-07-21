@@ -35,7 +35,7 @@
               type="selection"
               width="30">
             </el-table-column>
-            <el-table-column prop="identity" :label="$t('host.chart')" width="60px">
+            <el-table-column prop="identity" :label="$t('host.chart')" width="90px">
               <template slot-scope="scope">
                 <router-link :to="'/charts/link/' + scope.row.properties.uid + '/0/0/1'"><svg-icon icon-class="wang" class="links-icon"/></router-link>
               </template>

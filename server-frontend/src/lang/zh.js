@@ -143,6 +143,7 @@ export default {
     Dimension: '图形维度',
     TextonNode: '节点上的文本',
     ClusterK: '聚类个数',
-    Cluster: '聚类'
+    Cluster: '聚类',
+    setting: '设置'
   }
 }

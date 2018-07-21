@@ -1,68 +1,51 @@
 <template>
 <div class="chart-container">
   <el-row style="height:100%;">
-    <el-col :span="18" style="height:100%;">
-      <div id="nodes-graph" ></div>
+
+    <el-col :md="4" :sm=24 style="padding-left:6px;">
+      <el-collapse v-model="activeNames" v-if="mainNode != undefined">
+        <el-collapse-item :title="$t('link.CentralNode')" name="1">
+          <div class="text item">
+            {{$t('host.hostname')}}: {{mainNode.properties.hostname}}
+          </div>
+          <div class="text item">
+            {{$t('host.ips')}}: {{mainNode.properties.ips}}
+          </div>
+          <div class="text item">
+            {{$t('host.tag')}}: {{mainNode.properties.tags}}
+          </div>
+        </el-collapse-item>
+        <el-collapse-item :title="$t('link.setting')" name="2">
+          <div>
+            <el-form label-width="120px">
+              <el-form-item :label="$t('link.deepth')">
+                <el-input-number v-model="deepth" @change="handleChange" :min="1" :max="10" style="width:120px;"></el-input-number>
+              </el-form-item>
+              <el-form-item :label="$t('link.Dimension')">
+                <el-radio-group v-model="dimension" @change="dimensionChange">
+                  <el-radio :label="2">2D</el-radio>
+                  <el-radio :label="3">3D</el-radio>
+                </el-radio-group>
+              </el-form-item>
+              <el-form-item :label="$t('link.TextonNode')" v-if="dimension==2">
+                <el-select v-model="pointText" placeholder="choose" @change="pointChange">
+                  <el-option
+                    v-for="item in pointTextOptions"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value">
+                  </el-option>
+                </el-select>
+              </el-form-item>
+            </el-form>
+          </div>
+        </el-collapse-item>
+
+      </el-collapse>
+
     </el-col>
-    <el-col :span="6">
-      <el-card class="box-card" v-if="mainNode != undefined">
-        <h3>{{$t('link.CentralNode')}}</h3>
-<!--         <div class="text item">
-          identity: {{mainNode.identity}}
-        </div> -->
-        <div class="text item">
-          {{$t('host.hostname')}}: {{mainNode.properties.hostname}}
-        </div>
-        <div class="text item">
-          {{$t('host.ips')}}: {{mainNode.properties.ips}}
-        </div>
-        <div class="text item">
-          {{$t('host.tag')}}: {{mainNode.properties.tags}}
-        </div>
-      </el-card>
-      <el-card class="box-card" >
-        <el-form label-width="120px">
-          <el-form-item :label="$t('link.deepth')">
-            <el-input-number v-model="deepth" @change="handleChange" :min="1" :max="10"></el-input-number>
-          </el-form-item>
-          <el-form-item :label="$t('link.Dimension')">
-            <el-radio-group v-model="dimension" @change="dimensionChange">
-              <el-radio :label="2">2D</el-radio>
-              <el-radio :label="3">3D</el-radio>
-            </el-radio-group>
-          </el-form-item>
-          <el-form-item :label="$t('link.TextonNode')" v-if="dimension==2">
-            <el-select v-model="pointText" placeholder="choose" @change="pointChange">
-              <el-option
-                v-for="item in pointTextOptions"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value">
-              </el-option>
-            </el-select>
-          </el-form-item>
-        </el-form>
-      </el-card>
-      <el-card class="box-card" v-if="node_hover.identity != ''">
-        <div class="text item">
-          <h3>{{$t('link.SelectedNode')}} </h3>
-        </div>
-<!--         <div class="text item">
-          Id in Neo4j: {{node_hover.identity}}
-        </div>
-        <div class="text item">
-          Unique id: {{node_hover.properties.uid}}
-        </div> -->
-        <div class="text item">
-          {{$t('host.hostname')}}: {{node_hover.properties.hostname}}
-        </div>
-        <div class="text item">
-          {{$t('host.ips')}}: {{node_hover.properties.ips}}
-        </div>
-        <div class="text item">
-          {{$t('host.tag')}}: {{node_hover.properties.tags}}
-        </div>
-      </el-card>
+    <el-col :md="20" :sm=24 style="height:100%;">
+      <div id="nodes-graph" ></div>
     </el-col>
   </el-row>
 </div>
@@ -70,9 +53,10 @@
 
 <script>
 import ForceGraph3D from '3d-force-graph'
-import axios from 'axios'
 import { fetchListByIdNDeepth } from '@/api/host'
 import { fetchListByUids } from '@/api/host'
+import { searchLinksByNodes } from '@/api/link'
+
 import * as echarts from 'echarts'
 import $ from 'jquery'
 
@@ -80,6 +64,7 @@ export default {
   name: 'HelloWorld',
   data() {
     return {
+      activeNames: [],
       nodes: [],
       nodes_rich: [],
       node_hover: {
@@ -128,8 +113,7 @@ export default {
      */
     getLinks: function(uids) {
       var self = this
-      axios
-        .post('/api/netflow/search', { uids: uids })
+      searchLinksByNodes({ uids: uids })
         .then(function(response) {
           var links = response.data.links
           var links_ = []
@@ -197,6 +181,7 @@ export default {
           x: null,
           y: null,
           label: {
+            position: 'top',
             formatter: function(params) {
               var uid = params.data.name
               var node_t = self.search_node_rich(uid)
@@ -211,6 +196,12 @@ export default {
                 return 'Unknown'
               }
             }
+          },
+          symbolSize: 18,
+          itemStyle: {
+            color: 'rgba(255,255,255,1)',
+            shadowColor: 'rgba(255, 255, 255, 1)',
+            shadowBlur: 18
           }
         })
       }
@@ -226,7 +217,20 @@ export default {
       this.myGraph = echarts.init(dom)
       var option = {
         title: {
-          text: 'Echarts'
+          text: ''
+        },
+        backgroundColor: {
+          type: 'linear',
+          x: 0,
+          y: 1,
+          x2: 0.6,
+          y2: 0,
+          colorStops: [{
+            offset: 0, color: 'rgba(21,19,27,0.9)' // 0% 处的颜色
+          }, {
+            offset: 1, color: 'rgba(21,19,27,1)' // 100% 处的颜色
+          }],
+          globalCoord: false // 缺省为 false
         },
         animationDurationUpdate: 1500,
         animationEasingUpdate: 'quinticInOut',
@@ -261,30 +265,36 @@ export default {
                 show: true
               }
             },
-            edgeLabel: {
-              show: true,
-              position: 'middle',
-              formatter: function(params, ticket, callback) {
-                if (params.dataType === 'edge' && params.seriesType === 'graph') {
-                  var data = params.data
-                  var link_rich = self.search_rich_link(data)
-                  // var sourceNode = self.search_node_rich(data.source)
-                  // var targetNode = self.search_node_rich(data.target)
-                  var html = 'Port: ' + link_rich.properties.serverPort
-                  return html
-                } else {
-                  return ''
-                }
-              }
-            },
+            edgeSymbol: ['circle', 'arrow'],
+            edgeSymbolSize: [1, 6],
+            // edgeLabel: {
+            //   show: true,
+            //   position: 'middle',
+            //   formatter: function(params, ticket, callback) {
+            //     if (params.dataType === 'edge' && params.seriesType === 'graph') {
+            //       var data = params.data
+            //       var link_rich = self.search_rich_link(data)
+            //       // var sourceNode = self.search_node_rich(data.source)
+            //       // var targetNode = self.search_node_rich(data.target)
+            //       var html = 'Port: ' + link_rich.properties.serverPort
+            //       return html
+            //     } else {
+            //       return ''
+            //     }
+            //   }
+            // },
             draggable: true,
             data: nodes,
-            edgeSymbol: ['circle', 'arrow'],
-            edgeSymbolSize: [3, 12],
             links: links,
             force: {
               initLayout: 'circle',
-              repulsion: 6000
+              repulsion: 1000
+            },
+            lineStyle: {
+              color: 'rgba(255,255,255,1)',
+              width: 1,
+              shadowColor: 'rgba(255, 255, 255, 1)',
+              shadowBlur: 2
             }
           }
         ]
@@ -296,6 +306,7 @@ export default {
         if (node !== false) {
           self.node_hover = node
         }
+        self.clickNodeHandle()
       })
     }, // end of initGraphByEcharts
     getNodesByUids: function(uids) {
@@ -358,7 +369,6 @@ export default {
       var uids = [identity]
       fetchListByIdNDeepth({ identity: identity, deepth: deepth })
         .then(response => {
-          console.log(response)
           var data = response['data']
           for (var i = 0; i < data['nodes'].length; i++) {
             var node = data['nodes'][i]
@@ -378,6 +388,20 @@ export default {
     },
     pointChange: function() {
       this.getNodesByIdNDeepth(this.mainUid, this.deepth)
+    },
+    clickNodeHandle() {
+      var message = '<div>' + this.node_hover.properties.hostname + '</div>'
+      message += '<div>' + this.node_hover.properties.ips + '</div>'
+      if (this.node_hover.properties.tags) {
+        message += '<div>' + this.node_hover.properties.tags + '</div>'
+      }
+
+      this.$message({
+        duration: 12000,
+        type: 'success',
+        dangerouslyUseHTMLString: true,
+        message: message
+      })
     }
   },
   mounted() {
@@ -394,7 +418,7 @@ export default {
 <style scoped>
 .chart-container {
   position: relative;
-  padding: 20px;
+  padding: 0px;
   width: 100%;
   height: 100%;
 }

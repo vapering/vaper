@@ -30,22 +30,13 @@ exports.add = async (ctx) => {
 /**
  * 查找一批节点的之间的关系
  */
-exports.search = async (ctx) => {
-    try {
-        const session = driver.session()
-        var req_body = ctx.request.body
-        var links = await searchByUids(session, req_body["uids"])
-
-        ctx.body = {
-            "status": "success",
-            "links": links
-        }
-    } catch (error) {
-        ctx.status = 400
-        ctx.body = {
-            "status": "error",
-            "message": error.message
-        }
+exports.searchByNodes = async (ctx) => {
+    const session = driver.session()
+    var req_body = ctx.request.body
+    var links = await searchByUids(session, req_body["uids"])
+    ctx.body = {
+        "status": "success",
+        "links": links
     }
 }
 /**
@@ -107,6 +98,7 @@ exports.get = async (ctx) => {
                 "clientIp": link.properties.clientIP,
                 "serverIp": link.properties.serverIp,
                 "server_port": link.properties.serverPort,
+                "process_name": link.properties.processName,
                 "pps": link.properties.pps,
             }
             links.push(link_data)

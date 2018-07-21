@@ -143,6 +143,7 @@ export default {
     Dimension: 'Dimension',
     TextonNode: 'Text on Node',
     ClusterK: 'Number of clusters',
-    Cluster: 'cluster'
+    Cluster: 'cluster',
+    setting: 'setting'
   }
 }

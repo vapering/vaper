@@ -6,9 +6,11 @@
         </div>
         <el-table :data="tableData" style="width: 100%" :stripe="true" :border="false" >
           <el-table-column prop="identity" label="identity"></el-table-column>
-           <el-table-column prop="client.properties.ips" label="client"></el-table-column>
-          <el-table-column prop="server.properties.ips" label="server"></el-table-column>
+           <el-table-column prop="clientIp" label="client ip"></el-table-column>
+          <el-table-column prop="serverIp" label="server ip"></el-table-column>
           <el-table-column prop="server_port" label="port"></el-table-column>
+          <el-table-column prop="process_name" label="process name"></el-table-column>
+          
           <el-table-column prop="pps" label="Packages per second"></el-table-column>
           <el-table-column prop="time" label="Update" :formatter="timeUnixToHuman"></el-table-column>
           

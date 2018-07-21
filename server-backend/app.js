@@ -33,7 +33,9 @@ app.use(async (ctx, next) => {
 // error handle
 app.use(async (ctx, next) => {
   try {
+    console.log("1")
     await next();
+    console.log("4")
   } catch (err) {
     // will only respond with JSON
     ctx.status = err.statusCode || err.status || 500;
@@ -47,11 +49,16 @@ app.use(async (ctx, next) => {
 
 //check response format
 app.use(async (ctx, next) => {
+  console.log("2")
   await next();
+  console.log("3")
   const statuses = ["success", "error"]
-  if (statuses.indexOf(ctx.body.status) == -1) {
-    const message = "Error in response body,The ctx.body.status: (" + ctx.body.status + ") is not success or error"
-    throw new Error(message)
+
+  if (ctx.body !== undefined){
+    if (statuses.indexOf(ctx.body.status) == -1) {
+      const message = "Error in response body,The ctx.body.status: (" + ctx.body.status + ") is not success or error"
+      throw new Error(message)
+    }
   }
 })
 
