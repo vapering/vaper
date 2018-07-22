@@ -4,10 +4,9 @@
 
 [documentation](https://vapering.github.io/vaper/#/)  
 
-### [demo](http://vaper.wengpan.top/)
 
 ## Screenshot
-![2d demo](/docs/imgs/chart-link-2d-ip.jpg "2d demo")  
+![2d demo](/docs/imgs/demo-chart.jpg "2d demo")  
 ## Quick start
 ## run vaper-server only
 
@@ -16,7 +15,7 @@ git clone https://github.com/vapering/vaper.git
 cd vaper
 docker-compose up -d
 ```
-Open the [http://vaper-server:3000](http://vaper-server:3000)  
+Open the [http://ip:3000](http://vaper-server:3000)  
 run vaper in host or container:
 ```bash
 curl -o vaper_agent http://vaper-server:3000/static/agent/vaper_agent
@@ -36,5 +35,5 @@ run vaper-agent in all containers
 `sh run_vaper-agent_in_containers.sh`
 
 
-Open the [http://vaper-server:3000](http://vaper-server:3000)
+Open the [http://ip:3000](http://vaper-server:3000)
 

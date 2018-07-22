@@ -3,10 +3,12 @@
 > Take a look at the relations among servers.  
 
 [documentation](https://vapering.github.io/vaper/#/)  
-### [demo](http://vaper.wengpan.top/)
+[Github](https://github.com/vapering/vaper)  
+  
+   
+<!-- ### [demo](http://vaper.wengpan.top/) -->
+![2d demo](imgs/demo-chart.jpg "2d demo")  
 
-## Screenshot
-![2d demo](imgs/chart-link-2d-ip.jpg "2d demo")  
 
 
 ## Installation

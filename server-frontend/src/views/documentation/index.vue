@@ -1,24 +1,27 @@
 <template>
-  <el-row type="flex" class="row-bg" justify="center">
-    <el-col  :md="8" :sm=24 style="margin-top:200px;">
-      <a class="link-button" target='_blank' href="https://vapering.github.io/vaper/">
-        <svg-icon icon-class="documentation" />
-        Documentation
-      </a>
-      <a class="link-button" target='_blank' href="https://github.com/vapering/vaper">
-        <svg-icon icon-class="github" />
-        Github
-      </a>
-    </el-col>
-  </el-row>
+  <div class="container">
+    <el-row>
+      <el-col  :md="24" :sm=24  class="doc-col">
+        <a class="link-button" target='_blank' href="https://vapering.github.io/vaper/">
+          <svg-icon icon-class="documentation" />
+          Documentation
+        </a>
+      </el-col>
+    </el-row>
+    <el-row>
+      <el-col  :md="24" :sm=24 class="doc-col">
+        <a class="link-button" target='_blank' href="https://github.com/vapering/vaper">
+          <svg-icon icon-class="github" />
+          Github
+        </a>
+      </el-col>
+    </el-row>
+  </div>
 </template>
 <style scoped>
 .link-button{
-  width:100%;
-  height:180px;
-  font-size:36px;
-  padding:20px;
-  margin:50px;
+  height:90px;
+  font-size:24px;
   border-style:solid;
   border-width:0px;
   border-color:#ffffff;
@@ -29,6 +32,17 @@
   border-width:0px 0px 2px 0px;
   border-color:#ffaaaa;
   background-color: #fafafa;
+}
+.doc-col{
+  margin-top:30px;
+  min-height:120px;
+  text-align: center;
+}
+.container {
+  position: relative;
+  padding: 0px;
+  width: 100%;
+  height: 100%;
 }
 </style>
 

@@ -2,8 +2,8 @@
 <div class="chart-container">
   <el-row style="height:100%;">
 
-    <el-col :md="4" :sm=24 style="padding-left:6px;">
-      <el-collapse v-model="activeNames" v-if="mainNode != undefined">
+    <el-col :md="4" :sm=24 style="position:absolute;z-index:1000;background-color:#FFFFFF;">
+      <el-collapse v-model="activeNames" v-if="mainNode != undefined" style="padding-left:12px;">
         <el-collapse-item :title="$t('link.CentralNode')" name="1">
           <div class="text item">
             {{$t('host.hostname')}}: {{mainNode.properties.hostname}}
@@ -44,7 +44,7 @@
       </el-collapse>
 
     </el-col>
-    <el-col :md="20" :sm=24 style="height:100%;">
+    <el-col :md="24" :sm=24 style="height:100%;position:absolute;">
       <div id="nodes-graph" ></div>
     </el-col>
   </el-row>

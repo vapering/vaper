@@ -2,7 +2,7 @@
   <div class="content-container">
     <el-row>
       <el-col :span="24">
-          <el-form ref="form" :model="form" :inline="true">
+          <el-form ref="form" :model="form" :inline="true" label-width="90px">
             <el-form-item :label="$t('host.hostname')">
               <el-input v-model="form.hostname"></el-input>
             </el-form-item>      
@@ -26,8 +26,7 @@
       <el-col :span="24">
           <div style="margin-bottom:10px;">
             <el-button-group>
-              <!-- <el-button type="primary" icon="el-icon-edit">Edit Nickname</el-button>-->
-              <el-button :disabled="!(tableSelections.length > 0)" type="primary" icon="el-icon-delete" @click="deleteHosts">{{$t('table.delete')}}</el-button> 
+              <el-button size="mini" :disabled="!(tableSelections.length > 0)" type="primary" icon="el-icon-delete" @click="deleteHosts"></el-button> 
             </el-button-group>
           </div>
           <el-table :data="tableData" style="width: 100%" :stripe="true" :border="false" @selection-change="selectionChange" v-loading="tableLoading">
@@ -64,7 +63,6 @@
             <el-table-column :label="$t('host.action')">
               <template slot-scope="scope">
                 <el-button type="default" size="mini" icon="el-icon-edit" @click="editHost(scope.row)"></el-button>
-                <!-- <el-button type="default" size="mini" icon="el-icon-delete"></el-button> -->
               </template>
             </el-table-column>
           </el-table>
@@ -74,8 +72,10 @@
             :current-page="page.currenPage"
             :page-sizes="[5, 10, 30, 50]"
             :page-size="page.size"
-            layout="total, sizes, prev, pager, next, jumper"
-            :total="page.total">
+            layout="total, sizes, prev, pager, next"
+            :total="page.total" 
+            small="true"
+            >
           </el-pagination>
       </el-col>
     </el-row>
@@ -281,7 +281,7 @@ export default {
 <style scoped>
 .content-container {
   position: relative;
-  padding: 20px;
+  padding: 0px;
   width: 100%;
   height: 85vh;
 }
