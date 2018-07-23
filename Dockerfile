@@ -9,4 +9,4 @@ RUN pwd
 RUN npm install -g pm2 --registry=https://registry.npm.taobao.org
 RUN npm install --registry=https://registry.npm.taobao.org
 
-ENTRYPOINT pm2-runtime start bin/run -i 3
+ENTRYPOINT pm2-runtime start bin/run -i 1
