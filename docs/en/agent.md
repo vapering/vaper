@@ -28,7 +28,7 @@ Agent is a golang program. Collect netflow, hostmeta, processname info from oper
 ## Example
 
 ```bash
-curl -o vaper_agent http://vaper-server:3000/static/agent/vaper_agent
+curl -o vaper_agent https://github.com/vapering/vaper/releases/download/v0.0.1/vaper_agent
 chmod +x ./vaper_agent
 nohup ./vaper_agent -a start >>./vaper_agent.log 2>&1 &
 ```
