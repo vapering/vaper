@@ -33,9 +33,7 @@ app.use(async (ctx, next) => {
 // error handle
 app.use(async (ctx, next) => {
   try {
-    console.log("1")
     await next();
-    console.log("4")
   } catch (err) {
     // will only respond with JSON
     ctx.status = err.statusCode || err.status || 500;
@@ -49,9 +47,7 @@ app.use(async (ctx, next) => {
 
 //check response format
 app.use(async (ctx, next) => {
-  console.log("2")
   await next();
-  console.log("3")
   const statuses = ["success", "error"]
 
   if (ctx.body !== undefined){

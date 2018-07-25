@@ -8,23 +8,8 @@
       <error-log class="errLog-container right-menu-item"></error-log>
 
       <lang-select class="international right-menu-item"></lang-select>
+			<GithubCorner></GithubCorner>
 
-      <el-dropdown class="avatar-container right-menu-item" trigger="click">
-        <div class="avatar-wrapper">
-          <img class="user-avatar" :src="avatar+'?imageView2/1/w/60/h/60'">
-          <i class="el-icon-caret-bottom"></i>
-        </div>
-        <el-dropdown-menu slot="dropdown">
-          <router-link to="/">
-            <el-dropdown-item>
-              {{$t('navbar.dashboard')}}
-            </el-dropdown-item>
-          </router-link>
-          <el-dropdown-item divided>
-            <span @click="logout" style="display:block;">{{$t('navbar.logOut')}}</span>
-          </el-dropdown-item>
-        </el-dropdown-menu>
-      </el-dropdown>
     </div>
   </el-menu>
 </template>
@@ -34,18 +19,16 @@ import { mapGetters } from 'vuex'
 import Breadcrumb from '@/components/Breadcrumb'
 import Hamburger from '@/components/Hamburger'
 import ErrorLog from '@/components/ErrorLog'
-import Screenfull from '@/components/Screenfull'
 import LangSelect from '@/components/LangSelect'
-import ThemePicker from '@/components/ThemePicker'
+import GithubCorner from '@/components/GithubCorner'
 
 export default {
   components: {
     Breadcrumb,
     Hamburger,
     ErrorLog,
-    Screenfull,
     LangSelect,
-    ThemePicker
+    GithubCorner
   },
   computed: {
     ...mapGetters(['sidebar', 'name', 'avatar'])
@@ -84,6 +67,7 @@ export default {
   .right-menu {
     float: right;
     height: 100%;
+    padding-right: 60px;
     &:focus {
       outline: none;
     }

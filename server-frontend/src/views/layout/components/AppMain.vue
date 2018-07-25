@@ -1,5 +1,5 @@
 <template>
-  <div class="app-main" style="height: calc( 100% - 84px )">
+  <div class="app-main" style="height: calc( 100% - 50px )">
     <transition name="fade" mode="out-in">
       <keep-alive :include="cachedViews">
         <router-view></router-view>

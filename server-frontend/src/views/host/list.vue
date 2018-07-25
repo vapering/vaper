@@ -1,7 +1,7 @@
 <template>
   <div class="content-container">
     <el-row>
-      <el-col :span="24">
+      <el-col :span="24" style="margin-top:6px;">
           <el-form ref="form" :model="form" :inline="true" label-width="90px">
             <el-form-item :label="$t('host.hostname')">
               <el-input v-model="form.hostname"></el-input>
@@ -12,14 +12,15 @@
             <el-form-item :label="$t('host.tag')">
               <el-input v-model="form.tag"></el-input>
             </el-form-item>
-            <el-form-item>
+
+            <el-form-item style="min-width:90px;margin-left:18px;">
               <el-button type="primary" @click="fetchHostList">{{$t('host.search')}}</el-button>
             </el-form-item>
-            <el-form-item>
+            <el-form-item style="min-width:90px;margin-left:18px;">
               <el-button type="primary" @click="reset">{{$t('host.reset')}}</el-button>
             </el-form-item>
-          </el-form>
 
+          </el-form>
       </el-col>
     </el-row>
     <el-row>

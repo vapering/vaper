@@ -142,7 +142,6 @@ async function searchByUids(neo4jSession, uids) {
     if (result.records.length > 0) {
         for (var i = 0; i < result.records.length; i++) {
             var relation = result.records[i].toObject()["r"]
-            console.log(relation)
             var relation_new = {
                 "identity": relation.identity.toString(),
                 "source": relation.start.toString(),
