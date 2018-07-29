@@ -52,7 +52,7 @@
 </template>
 
 <script>
-import ForceGraph3D from '3d-force-graph'
+
 import { fetchListByIdNDeepth } from '@/api/host'
 import { fetchListByUids } from '@/api/host'
 import { searchLinksByNodes } from '@/api/link'
@@ -142,40 +142,21 @@ export default {
           console.error(error)
         })
     },
-    initGraphByForceGraph3D: function(dom, width) {
-      var myGraph = ForceGraph3D()(dom)
-      myGraph.width(width)
-      myGraph.height('800')
-      myGraph.forceEngine('d3')
-      myGraph.backgroundColor('#000033')
-      myGraph.linkColorField('color')
-      myGraph.lineOpacity(0.2)
-      myGraph.colorField('color')
-      myGraph.d3AlphaDecay(0.1)
-      myGraph.nodeResolution(16)
-      myGraph.showNavInfo(false)
-      myGraph.graphData({
-        nodes: this.nodes,
-        links: this.links
-      }) // end of graphData
-      var self = this
-      myGraph.onNodeHover(function(node) {
-        if (node != null) {
-          var uid = node.id
-          var node_t = self.search_node_rich(uid)
-          if (node_t !== false) {
-            self.node_hover = node_t
-          }
-        }
-      })
-      this.myGraph = myGraph
-    }, // end of initGraphByForceGraph3D
+
     initGraphByEcharts: function(dom, width) {
       var nodes = []
       var self = this
       // 处理node数据
       for (var i = 0; i < this.nodes_rich.length; i++) {
         var node = this.nodes_rich[i]
+        var nodeColor, shadowColor
+        if (node.properties.uid === self.mainNode.properties.uid) {
+          nodeColor = 'rgba(255,100,100, 1)'
+          shadowColor = 'rgba(100, 100, 255, 1)'
+        } else {
+          nodeColor = 'rgba(255,255,255,1)'
+          shadowColor = 'rgba(255, 255, 255, 1)'
+        }
         nodes.push({
           name: node.identity,
           x: null,
@@ -199,8 +180,8 @@ export default {
           },
           symbolSize: 18,
           itemStyle: {
-            color: 'rgba(255,255,255,1)',
-            shadowColor: 'rgba(255, 255, 255, 1)',
+            color: nodeColor,
+            shadowColor: shadowColor,
             shadowBlur: 18
           }
         })
@@ -267,28 +248,19 @@ export default {
             },
             edgeSymbol: ['circle', 'arrow'],
             edgeSymbolSize: [1, 6],
-            // edgeLabel: {
-            //   show: true,
-            //   position: 'middle',
-            //   formatter: function(params, ticket, callback) {
-            //     if (params.dataType === 'edge' && params.seriesType === 'graph') {
-            //       var data = params.data
-            //       var link_rich = self.search_rich_link(data)
-            //       // var sourceNode = self.search_node_rich(data.source)
-            //       // var targetNode = self.search_node_rich(data.target)
-            //       var html = 'Port: ' + link_rich.properties.serverPort
-            //       return html
-            //     } else {
-            //       return ''
-            //     }
-            //   }
-            // },
             draggable: true,
             data: nodes,
             links: links,
             force: {
               initLayout: 'circle',
               repulsion: 1000
+            },
+            effect: {
+              show: true,
+              period: 6,
+              trailLength: 0.7,
+              color: '#fff',
+              symbolSize: 3
             },
             lineStyle: {
               color: 'rgba(255,255,255,1)',

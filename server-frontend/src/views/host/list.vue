@@ -25,7 +25,7 @@
     </el-row>
     <el-row>
       <el-col :span="24">
-          <div style="margin-bottom:10px;">
+          <div style="margin-bottom:10px;padding-left:10px;">
             <el-button-group>
               <el-button size="mini" :disabled="!(tableSelections.length > 0)" type="primary" icon="el-icon-delete" @click="deleteHosts"></el-button> 
             </el-button-group>
@@ -61,6 +61,9 @@
 
               </template>
             </el-table-column>
+
+            <el-table-column prop="properties.time" label="Update" :formatter="timeUnixToHuman"></el-table-column>
+
             <el-table-column :label="$t('host.action')">
               <template slot-scope="scope">
                 <el-button type="default" size="mini" icon="el-icon-edit" @click="editHost(scope.row)"></el-button>
@@ -75,7 +78,7 @@
             :page-size="page.size"
             layout="total, sizes, prev, pager, next"
             :total="page.total" 
-            small="true"
+            :small="true"
             >
           </el-pagination>
       </el-col>
@@ -121,6 +124,7 @@
 <script>
 import { fetchList, updateTags, getHostCount } from '@/api/host'
 import { remove as hostRemove } from '@/api/host'
+import { dateFormat } from '@/filters/'
 
 export default {
   name: 'hostlist',
@@ -270,6 +274,11 @@ export default {
       this.$nextTick(_ => {
         this.$refs.saveTagInput.$refs.input.focus()
       })
+    },
+    timeUnixToHuman: function(row, column, unixStamp, index) {
+      var date = new Date(unixStamp * 1000)
+      var text = dateFormat(date, 'yyyy-MM-dd hh:mm')
+      return text
     }
   },
   mounted() {},

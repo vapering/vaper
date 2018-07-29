@@ -108,7 +108,7 @@ export default {
   .dashboard-container{
     height:100%;
     background: #ffffff;
-    background-image:url(/static/imgs/dashboard-bg.png);
+    // background-image:url(/static/imgs/dashboard-bg.png);
     background-size: auto 100% ;
     background-repeat:no-repeat;
   }
