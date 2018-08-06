@@ -1,4 +1,4 @@
-* [Quick start](README.md)
+* [快速开始](README.md)
 * [Docker-compose-example](en/docker.md)
 * [Backend](en/backend.md)
   * [Requirement](en/backend.md?id=Requirement)

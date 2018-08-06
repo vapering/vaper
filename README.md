@@ -2,11 +2,11 @@
 
 > Take a look at the relations among servers.  
 
+[文档](http://localhost:3001/#/zh-cn/)  
 [documentation](https://vapering.github.io/vaper/#/)  
 
-
 ## Screenshot
-![2d demo](/docs/imgs/demo-chart.jpg "2d demo")  
+![2d demo](/docs/imgs/demo-pc.jpg "2d demo")  
 ## Quick start
 ## run vaper-server only
 

@@ -7,7 +7,7 @@
   
    
 <!-- ### [demo](http://vaper.wengpan.top/) -->
-![2d demo](imgs/demo-chart.jpg "2d demo")  
+![2d demo](imgs/demo-pc.jpg "2d demo")  
 
 
 
