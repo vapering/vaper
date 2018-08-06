@@ -1,0 +1,162 @@
+version: '3'
+services:
+  vaper-server:
+    hostname: vaper-server
+    container_name: vaper-server
+    image: sysuhxn/vaper
+    links:
+      - neo4j
+    ports:
+      - 3000:3000
+    networks:
+      esnet:
+          aliases: 
+            - vaper-server
+    restart: unless-stopped
+    
+  neo4j:
+    hostname: neo4j
+    container_name: neo4j
+    image: neo4j:3.3
+    environment:
+      - NEO4J_AUTH=none
+    ports:
+      - 7474:7474
+      - 7687:7687
+    networks:
+      - esnet
+    volumes:
+      - /data/neo4jdata:/data
+    restart: unless-stopped
+
+  nginx:
+    hostname: nginx
+    container_name: nginx
+    image: nginx:1.15
+    depends_on:
+      - elasticsearch01
+    ports:
+      - 9100:9100
+    volumes:
+    - ./nginx.conf:/etc/nginx/conf.d/nginx.conf
+    environment:
+    - NGINX_HOST=0.0.0.0
+    - NGINX_PORT=9100
+    networks:
+      esnet:
+          aliases: 
+            - nginx
+    restart: unless-stopped
+
+  elasticsearch01:
+    image: elasticsearch:5
+    container_name: elasticsearch01
+    hostname: elasticsearch01
+    environment:
+      - cluster.name=docker-cluster
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - esdata1:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+    networks:
+      esnet:
+          aliases: 
+            - elasticsearch01
+
+  elasticsearch02:
+    image: elasticsearch:5
+    container_name: elasticsearch02
+    hostname: elasticsearch02
+    environment:
+      - cluster.name=docker-cluster
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - esdata2:/usr/share/elasticsearch/data
+    networks:
+      esnet:
+          aliases: 
+            - elasticsearch02
+
+  elasticsearch03:
+    image: elasticsearch:5
+    container_name: elasticsearch03
+    hostname: elasticsearch03
+    environment:
+      - cluster.name=docker-cluster
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - esdata3:/usr/share/elasticsearch/data
+    networks:
+      esnet:
+          aliases: 
+            - elasticsearch03
+   
+  kibana:
+    image: kibana:5
+    container_name: kibana
+    hostname: kibana
+    environment:
+      ELASTICSEARCH_URL: http://nginx:9100
+    ports:
+      - 5601:5601
+    networks:
+      - esnet
+  
+  logstash:
+    image: logstash:5
+    container_name: logstash
+    hostname: logstash
+    volumes:
+      - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+    networks:
+      esnet:
+          aliases: 
+            - logstash
+    command: ["-f", "/usr/share/logstash/pipeline/logstash.conf"]
+
+  metricbeat01:
+    image: athieriot/metricbeat
+    container_name: metricbeat01
+    hostname: metricbeat01
+    volumes:
+      - ./metricbeat.yml:/metricbeat/metricbeat.yml
+    networks:
+      - esnet
+
+  metricbeat02:
+    image: athieriot/metricbeat
+    container_name: metricbeat02
+    hostname: metricbeat02
+    volumes:
+      - ./metricbeat.yml:/metricbeat/metricbeat.yml
+    networks:
+      - esnet
+
+volumes:
+  esdata1:
+    driver: local
+  esdata2:
+    driver: local
+  esdata3:
+    driver: local
+  neo4jdata:
+    driver: local
+
+networks:
+  esnet:
