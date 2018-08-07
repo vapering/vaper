@@ -21,13 +21,7 @@
               <el-form-item :label="$t('link.deepth')">
                 <el-input-number v-model="deepth" @change="handleChange" :min="1" :max="10" style="width:120px;"></el-input-number>
               </el-form-item>
-              <el-form-item :label="$t('link.Dimension')">
-                <el-radio-group v-model="dimension" @change="dimensionChange">
-                  <el-radio :label="2">2D</el-radio>
-                  <el-radio :label="3">3D</el-radio>
-                </el-radio-group>
-              </el-form-item>
-              <el-form-item :label="$t('link.TextonNode')" v-if="dimension==2">
+              <el-form-item :label="$t('link.TextonNode')" >
                 <el-select v-model="pointText" placeholder="choose" @change="pointChange">
                   <el-option
                     v-for="item in pointTextOptions"
@@ -77,7 +71,6 @@ export default {
       mainUid: 0,
       mainNode: undefined,
       myGraph: {},
-      dimension: 2,
       pointTextOptions: [
         {
           value: 'hostname',
@@ -97,17 +90,6 @@ export default {
     }
   },
   methods: {
-    dimensionChange: function(value) {
-      if (this.dimension === 2) {
-        this.myGraph.resetProps()
-        this.myGraph = {}
-        $('#nodes-graph').html()
-      } else if (this.dimension === 3) {
-        this.myGraph.dispose()
-      }
-      this.dimension = value
-      this.getNodesByIdNDeepth(this.mainUid, this.deepth)
-    },
     /**
      * @augments id array
      */
@@ -132,11 +114,7 @@ export default {
           self.links_rich = links_rich
           var dom = document.getElementById('nodes-graph')
           var width = $('#nodes-graph').width()
-          if (self.dimension === 2) {
-            self.initGraphByEcharts(dom, width)
-          } else if (self.dimension === 3) {
-            self.initGraphByForceGraph3D(dom, width)
-          }
+          self.initGraphByEcharts(dom, width)
         })
         .catch(function(error) {
           console.error(error)
