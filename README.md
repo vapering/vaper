@@ -2,7 +2,7 @@
 
 > Take a look at the relations among servers.  
 
-[文档](http://localhost:3001/#/zh-cn/)  
+[文档](https://vapering.github.io/vaper/#/zh-cn/)  
 [documentation](https://vapering.github.io/vaper/#/)  
 
 ## Screenshot
