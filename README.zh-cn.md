@@ -13,7 +13,6 @@
 ![2d demo](https://vapering.github.io/vaper/imgs/demo-pc.zh-cn.jpg "2d demo")  
 ## 快速开始
 ## 只部署 vaper-server 和 neo4j数据库
-***
 ```shell
 git clone https://github.com/vapering/vaper.git
 cd vaper
@@ -28,7 +27,6 @@ nohup ./vaper_agent -a start -ServerUrl http://ip:3000 >>./vaper_agent.log 2>&1 
 ```
 
 ## 部署一个vaper-server和elasticsearch服务  
-***
 ```shell
 git clone https://github.com/vapering/vaper.git
 cd vaper/docker-compose-examples/elasticsearch
@@ -40,9 +38,7 @@ docker-compose up -d
 Open the [http://ip:3000](http://vaper-server:3000)  
 
 ## 问题反馈
-***
 如果有问题和疑问都可以发布在GitHub issue。
 
-## 参与  
-***  
+## 参与    
 欢迎小伙伴提交的新功能、修复、或者更新；

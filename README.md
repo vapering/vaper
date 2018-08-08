@@ -41,6 +41,6 @@ Open the [http://ip:3000](http://vaper-server:3000)
 ***
 ## Issues
 If you have any problems with or questions, please contact me through a GitHub issue.
-
+***
 ## Contributing
 You are invited to contribute new features, fixes, or updates, large or small;
