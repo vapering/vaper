@@ -3,44 +3,45 @@
 > Take a look at the relations among servers.  
 
 
-[简体中文](./README.zh-cn.md)  | English
+简体中文  | English(./README.md)
 
 [中文文档](https://vapering.github.io/vaper/#/zh-cn/)  
 [Documentation](https://vapering.github.io/vaper/#/)    
 
-## Screenshot
+## 截图
 ![2d demo](https://vapering.github.io/vaper/imgs/demo-pc.jpg "2d demo")  
-## Quick start
-## run vaper-server only
-
+## 快速开始
+## 只部署 vaper-server 和 neo4j数据库
+***
 ```shell
 git clone https://github.com/vapering/vaper.git
 cd vaper
 docker-compose up -d
 ```
-Open the [http://ip:3000](http://vaper-server:3000)  
-run vaper in host or container:
+浏览器打开[http://ip:3000](http://vaper-server:3000)  
+在操作系统或者容器内运行vaper_agent
 ```bash
 curl -o vaper_agent https://github.com/vapering/vaper/releases/download/v0.0.1/vaper_agent
 chmod +x ./vaper_agent
 nohup ./vaper_agent -a start -ServerUrl http://ip:3000 >>./vaper_agent.log 2>&1 &
 ```
 
-## run vaper-server with a elasticsearch service
-
+## 部署一个vaper-server和elasticsearch服务  
+***
 ```shell
 git clone https://github.com/vapering/vaper.git
 cd vaper/docker-compose-examples/elasticsearch
 docker-compose up -d
 ```
-
-run vaper-agent in all containers  
+在容器内运行 vaper-agent   
 `sh run_vaper-agent_in_containers.sh`
 
-Open the [http://ip:3000](http://vaper-server:3000)
-***
-## Issues
-If you have any problems with or questions, please contact me through a GitHub issue.
+Open the [http://ip:3000](http://vaper-server:3000)  
 
-## Contributing
-You are invited to contribute new features, fixes, or updates, large or small;
+## 问题反馈
+***
+如果有问题和疑问都可以发布在GitHub issue。
+
+## 参与  
+***  
+欢迎小伙伴提交的新功能、修复、或者更新；

@@ -30,7 +30,7 @@ Agent is a golang program. Collect netflow, hostmeta, processname info from oper
 ```bash
 curl -o vaper_agent https://github.com/vapering/vaper/releases/download/v0.0.1/vaper_agent
 chmod +x ./vaper_agent
-nohup ./vaper_agent -a start >>./vaper_agent.log 2>&1 &
+nohup ./vaper_agent -a start -ServerUrl http://ip:3000 >>./vaper_agent.log 2>&1 &
 ```
 
 ## Build and run in the development environment
