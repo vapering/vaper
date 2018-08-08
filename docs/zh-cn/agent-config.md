@@ -1,0 +1,57 @@
+# vaper_agent configuration
+
+`config.yml`
+
+
+```yaml
+# vaper_agent configuration file
+
+uuid:
+    # path
+    # default: "./vaper_agent.uid"
+    # The uuid（Universally Unique Identifier） of this host
+    # agent will generate a new uuid when run: vaper_agent -a init.
+    path: "./vaper_agent.uid"
+
+    # autogenerate
+    # 0 : Only try to read the uuid.txt.
+    # 1 : Generate the uid auto.
+    # Auto means agent will generate a uid file When there is no uuid.uid.
+    # default:"1"
+    autogenerate: "1"
+
+# level
+# default: info 
+# Optional: debug info warn error fatal panic
+loglevel: "info"
+
+# path
+# default: "./vaper_agent.log" 
+logpath: "./vaper_agent.log"
+
+frequency:
+    # HostInfoFrequency
+    # default: "60"
+    # Send host info every n seconds.
+    # hostinfo > 60
+    hostinfo: 60
+
+    # networkflow
+    # default: "10"
+    # Send networkflow info every n seconds.
+    # networkflow >= 10
+    networkflow: 10
+
+# default 1.0
+# 100 * n out of 100 packages will be sampled where n is the rate. (0.1: 10%)
+# 0.1 - 1.0
+samplingrate: 1.0
+
+# server
+# default:"http://127.0.0.1:3000"
+# the Vaper-server-backend address
+server: "http://127.0.0.1:3000"
+
+
+
+```

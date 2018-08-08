@@ -1,13 +1,13 @@
 # Vaper
-正在翻译中...
-> 收集服务器之间的网络流量数据，并实时将拓扑关系可视化展现
+
+> 收集服务器之间的网络流量数据，并实时将拓扑关系可视化
 
 [文档](https://vapering.github.io/vaper/#/)  
 
 ## 截图
 ![2d demo](../imgs/demo-pc.zh-cn.jpg "2d demo")  
 ## 1分钟部署
-## 只运行 vaper-server
+## 只部署 vaper-server
 
 ```shell
 git clone https://github.com/vapering/vaper.git
@@ -18,12 +18,12 @@ docker-compose up -d
 
 在操作系统或者容器内运行 vaper-agent 收集数据
 ```bash
-curl -o vaper_agent http://vaper-server:3000/static/agent/vaper_agent
+curl -o vaper_agent https://github.com/vapering/vaper/releases/download/v0.0.1/vaper_agent
 chmod +x ./vaper_agent
 nohup ./vaper_agent -a start >>./vaper_agent.log 2>&1 &
 ```
 
-## 运行一个 vaper-server 和一个 elasticsearch实例服务
+## 部署一个 vaper-server 和一个被监控的elasticsearch实例服务
 
 ```shell
 git clone https://github.com/vapering/vaper.git

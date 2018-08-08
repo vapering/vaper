@@ -1,6 +1,7 @@
 # Logs
 logs
 *.log
+public
 npm-debug.log*
 
 # Runtime data
@@ -31,3 +32,4 @@ node_modules
 
 # Optional REPL history
 .node_repl_history
+!public/README.md

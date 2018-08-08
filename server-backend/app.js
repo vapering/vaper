@@ -59,7 +59,7 @@ app.use(async (ctx, next) => {
 })
 
 
-// router.use('/', index.routes(), index.allowedMethods());
+router.use('/', index.routes(), index.allowedMethods());
 router.use('/login', user.routes(), user.allowedMethods());
 router.use('/netflow', netflow.routes(), netflow.allowedMethods());
 router.use('/host', host.routes(), host.allowedMethods());

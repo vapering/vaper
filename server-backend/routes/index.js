@@ -5,7 +5,10 @@ router.get('/', async function (ctx, next) {
     title: 'Vaper'
   };
 
-  ctx.body = "Vaper backend, we all know."
+  ctx.body = {
+    "status":"success",
+    "message": "Vaper backend, we all know."
+  }
 });
 
 

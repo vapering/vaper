@@ -2,11 +2,10 @@
 
 > Take a look at the relations among servers.  
 
-[文档](https://vapering.github.io/vaper/#/zh-cn/)  
-[documentation](https://vapering.github.io/vaper/#/)  
+[简体中文](https://vapering.github.io/vaper/#/zh-cn/)  |  [Documentation](https://vapering.github.io/vaper/#/)    
 
 ## Screenshot
-![2d demo](/docs/imgs/demo-pc.jpg "2d demo")  
+![2d demo](https://vapering.github.io/vaper/imgs/demo-pc.jpg "2d demo")  
 ## Quick start
 ## run vaper-server only
 
@@ -18,7 +17,7 @@ docker-compose up -d
 Open the [http://ip:3000](http://vaper-server:3000)  
 run vaper in host or container:
 ```bash
-curl -o vaper_agent http://vaper-server:3000/static/agent/vaper_agent
+curl -o vaper_agent https://github.com/vapering/vaper/releases/download/v0.0.1/vaper_agent
 chmod +x ./vaper_agent
 nohup ./vaper_agent -a start >>./vaper_agent.log 2>&1 &
 ```
