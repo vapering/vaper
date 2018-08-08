@@ -1,15 +1,16 @@
 # Vaper
 
-> Take a look at the relations among servers.  
+> 收集服务器之间的网络流量数据，并实时将拓扑关系可视化.  
+> 可以应用于系统节点间的调用关系链自动发现，异常应用流量监控, 应用告警收敛等场景。
 
 
-简体中文  | English(./README.md)
+简体中文  | [English](./README.md)
 
 [中文文档](https://vapering.github.io/vaper/#/zh-cn/)  
 [Documentation](https://vapering.github.io/vaper/#/)    
 
 ## 截图
-![2d demo](https://vapering.github.io/vaper/imgs/demo-pc.jpg "2d demo")  
+![2d demo](https://vapering.github.io/vaper/imgs/demo-pc.zh-cn.jpg "2d demo")  
 ## 快速开始
 ## 只部署 vaper-server 和 neo4j数据库
 ***
