@@ -37,6 +37,11 @@ docker-compose up -d
 
 Open the [http://ip:3000](http://vaper-server:3000)  
 
+## 计划
+- 提供其他工具采集数据，比如shell脚本，或者其他自动化工具。 
+- 对agent在高网络负载的情况下的性能做测试。 
+- 单元测试
+
 ## 问题反馈
 如果有问题和疑问都可以发布在GitHub issue。
 

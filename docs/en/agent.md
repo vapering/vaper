@@ -34,7 +34,7 @@ nohup ./vaper_agent -a start -ServerUrl http://ip:3000 >>./vaper_agent.log 2>&1 
 ```
 
 ## Performance
-Vaper_agent will cost much by heavily-loaded network because vaper_agent catch 100% network data in default. Set the `samplingrate` config item in a low value could help.
+Vaper_agent will cost much in heavily-loaded network because vaper_agent catch 100% network data in default. Set the `samplingrate` config item in a low value could help.
 
 ## Build and run in the development environment
 
