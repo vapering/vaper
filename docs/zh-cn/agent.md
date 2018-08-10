@@ -33,6 +33,9 @@ chmod +x ./vaper_agent
 nohup ./vaper_agent -a start -ServerUrl http://ip:3000 >>./vaper_agent.log 2>&1 &
 ```
 
+## 性能
+因为vaper_agent默认是采集100%的操作系统网络数据，在网络流量比较大的系统上会比较消耗系统性能，请注意降低采样率设置 samplingrate
+
 ## 在开发环境编译和运行
 
 `sh buildRun.sh`  

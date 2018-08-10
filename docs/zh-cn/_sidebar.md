@@ -7,3 +7,5 @@
     * [Netflow](/zh-cn/backend-api.md?id=Netflow)
 * [前端](/zh-cn/frontend.md)
 * [Agent](/zh-cn/agent.md)
+  * [使用](/zh-cn/agent.md)
+  * [配置](/zh-cn/agent-config.md)
