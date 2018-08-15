@@ -1,6 +1,10 @@
 export default {
+  global: {
+    node: '节点',
+    link: '关系'
+  },
   route: {
-    host: '主机',
+    host: '节点',
     dashboard: '首页',
     introduction: '简述',
     documentation: '文档',
