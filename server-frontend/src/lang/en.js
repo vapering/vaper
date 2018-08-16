@@ -1,6 +1,13 @@
 export default {
+  homepage: {
+    demoDataNotice: 'This is demo data.'
+  },
+  global: {
+    node: 'node',
+    link: 'link'
+  },
   route: {
-    host: 'Host',
+    host: 'Node',
     dashboard: 'Dashboard',
     introduction: 'Introduction',
     documentation: 'Documentation',
