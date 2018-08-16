@@ -1,4 +1,7 @@
 export default {
+  homepage: {
+    demoDataNotice: '这是示例数据.'
+  },
   global: {
     node: '节点',
     link: '关系'

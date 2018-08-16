@@ -1,4 +1,7 @@
 export default {
+  homepage: {
+    demoDataNotice: 'This is demo data.'
+  },
   global: {
     node: 'node',
     link: 'link'
