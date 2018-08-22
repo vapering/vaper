@@ -5,6 +5,7 @@
 [documentation](https://vapering.github.io/vaper/#/)  
 [Github](https://github.com/vapering/vaper)  
   
+[DEMO](http://vaper.wengpan.top) 
    
 <!-- ### [demo](http://vaper.wengpan.top/) -->
 ![2d demo](imgs/demo-pc.jpg "2d demo")  

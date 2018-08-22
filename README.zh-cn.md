@@ -9,6 +9,8 @@
 [中文文档](https://vapering.github.io/vaper/#/zh-cn/)  
 [Documentation](https://vapering.github.io/vaper/#/)    
 
+[演示](http://vaper.wengpan.top) 
+
 ## 截图
 ![2d demo](https://vapering.github.io/vaper/imgs/demo-pc.zh-cn.jpg "2d demo")  
 ## 快速开始

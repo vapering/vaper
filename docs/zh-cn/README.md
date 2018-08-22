@@ -6,6 +6,8 @@
 
 [文档](https://vapering.github.io/vaper/#/)  
 
+[演示](http://vaper.wengpan.top) 
+
 ## 截图
 ![2d demo](../imgs/demo-pc.zh-cn.jpg "2d demo")  
 ## 1分钟部署

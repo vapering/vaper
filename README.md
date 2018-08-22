@@ -6,7 +6,9 @@
 [简体中文](./README.zh-cn.md)  | English
 
 [中文文档](https://vapering.github.io/vaper/#/zh-cn/)  
-[Documentation](https://vapering.github.io/vaper/#/)    
+[Documentation](https://vapering.github.io/vaper/#/)   
+
+[DEMO](http://vaper.wengpan.top) 
 
 ## Screenshot
 ![2d demo](https://vapering.github.io/vaper/imgs/demo-pc.jpg "2d demo")  
