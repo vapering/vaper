@@ -34,7 +34,7 @@ exports.add_or_update = async (ctx) => {
     session.close()
     ctx.body = {
         "status": "success",
-        "message": "Add " + result.records.length + "host."
+        "message": "Add " + result.records.length + " host."
     }
 }
 
