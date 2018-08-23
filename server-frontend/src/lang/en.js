@@ -1,6 +1,6 @@
 export default {
   homepage: {
-    demoDataNotice: 'This is demo data.'
+    demoDataNotice: 'There is demo data in dashboard home page.'
   },
   global: {
     node: 'node',

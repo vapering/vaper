@@ -233,7 +233,7 @@ export default {
     border-width: 0px;
     // border-radius: 6px;
     margin: 30px 10px;
-    padding: 16px 36px;
+    padding: 16px 10px;
     cursor: pointer;
     height:120px;
     z-index:10;
@@ -242,8 +242,10 @@ export default {
   .dash-card .icon-count {
     margin: 10px 0px 0px 0px;
     float: right;
-    font-size: 60px;
+    font-size: 48px;
     font-weight:100;
+    width: calc( 100% - 90px);
+    text-align: center;
   }
   .dash-card .icon-count .icon-title {
     font-size: 36px;

@@ -1,6 +1,6 @@
 export default {
   homepage: {
-    demoDataNotice: '这是示例数据.'
+    demoDataNotice: '首页是示例数据.'
   },
   global: {
     node: '节点',
